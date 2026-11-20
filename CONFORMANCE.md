@@ -11,7 +11,9 @@ protocol, `doc/client/05-protocol.md`; the client library,
 `doc/client/02-library.md`; and its settings, pipelines and pools,
 `doc/client/02-library-connections.md`. Each section here is one of
 theirs, and each row cites its heading as the tests cite it (RULES.md
-D6). The headings are those of Turborel's main at e4f08f77. Last come
+D6). The headings are those of Turborel's main at 045e42a9, and the
+sample frames the tests read, `test/fixtures/05-protocol-frames.tsv`, are
+its `doc/client/05-protocol-frames.tsv` there (RULES.md D18). Last come
 the rows of this driver's standard API (RULES.md D2).
 
 **Done** means the driver's code for the row exists and is tested by
@@ -39,14 +41,20 @@ Contents: [Where the page and the code differ](#where-the-page-and-the-code-diff
 ## Where the page and the code differ
 
 Where The Native Protocol and turborel-protocol's code differ, the code
-is right, and the rows follow it. At e4f08f77 the page leaves out three
-things the code does:
+is right, and the rows follow it. At e4f08f77 the page left out three
+things the code does; it gives the first from 1c4187e4, and the other two
+from b40bd830:
 
 | Gap | The code | Rows |
 |---|---|---|
+| G1 | Resolved at 1c4187e4, whose Data types and Values tables list it: UUID is type tag 27, with no parameters, and value tag 27, whose body is bytes: a `u32` count of 16, then the 16 octets (Turborel's RULES.md D184, `protocol/src/fields.rs`) | P-TYPE-27, P-VAL-27 |
+| G2 | Resolved on the page at b40bd830. Besides AUTHORIZATION, SCHEMA, READ_ONLY and SERVER_VERSION, the server tells SERVER_READ_ONLY (YES or NO, how a client tells a replica from a primary), CATALOG and OWNER (YES or NO) (`server/src/native/status.rs`) | P-STATUS-7 to P-STATUS-9 |
+| G3 | Resolved on the page at b40bd830 (its section JSON values). A JSON value, tag 25, carries the binary tree of Turborel's RULES.md D89 (`src/json/binary.rs`, `src/json/binary/write.rs`) | P-VAL-25, the P-JSON rows |
+
+---|---|---|
 | G1 | UUID is type tag 27, with no parameters, and value tag 27, whose body is bytes: a `u32` count of 16, then the 16 octets (Turborel's RULES.md D184, `protocol/src/fields.rs`) | P-TYPE-27, P-VAL-27 |
-| G2 | Besides AUTHORIZATION, SCHEMA, READ_ONLY and SERVER_VERSION, the server tells SERVER_READ_ONLY (YES or NO, how a client tells a replica from a primary), CATALOG and OWNER (YES or NO) (`server/src/native/status.rs`) | P-STATUS-7 to P-STATUS-9 |
-| G3 | A JSON value, tag 25, carries the binary tree of Turborel's RULES.md D89 (`src/json/binary.rs`, `src/json/binary/write.rs`) | P-VAL-25, the P-JSON rows |
+| G2 | Resolved on the page at b40bd830. Besides AUTHORIZATION, SCHEMA, READ_ONLY and SERVER_VERSION, the server tells SERVER_READ_ONLY (YES or NO, how a client tells a replica from a primary), CATALOG and OWNER (YES or NO) (`server/src/native/status.rs`) | P-STATUS-7 to P-STATUS-9 |
+| G3 | Resolved on the page at b40bd830 (its section JSON values). A JSON value, tag 25, carries the binary tree of Turborel's RULES.md D89 (`src/json/binary.rs`, `src/json/binary/write.rs`) | P-VAL-25, the P-JSON rows |
 
 ---
 
@@ -56,10 +64,10 @@ The same in every driver; the status of each row is in its table.
 
 | Part | Rows |
 |---|---|
-| The protocol | 241 |
-| The client library | 92 |
+| The protocol | 257 |
+| The client library | 95 |
 | Settings, pipelines and pools | 82 |
-| All but the standard API | 415 |
+| All but the standard API | 434 |
 
 ---
 
@@ -71,199 +79,211 @@ From `doc/client/05-protocol.md`, The Native Protocol.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-INTRO-1 | TCP, on port 7422 unless told another | `[PROTOCOL The Native Protocol]` | not yet |
-| P-INTRO-2 | A Unix socket, or a named pipe, where the operator asks | `[PROTOCOL The Native Protocol]` | not yet |
-| P-INTRO-3 | TLS begun on the same port, the server telling it by the handshake's first byte, 22 | `[PROTOCOL The Native Protocol]` | not yet |
-| P-INTRO-4 | Version 1, grown by capabilities alone; a client that asks for none sees the first form, byte for byte | `[PROTOCOL The Native Protocol]` | not yet |
+| P-INTRO-1 | TCP, on port 7422 unless told another | `[PROTOCOL The Native Protocol]` | done |
+| P-INTRO-2 | A Unix socket, or a named pipe, where the operator asks | `[PROTOCOL The Native Protocol]` | done |
+| P-INTRO-3 | TLS begun on the same port, the server telling it by the handshake's first byte, 22 | `[PROTOCOL The Native Protocol]` | done |
+| P-INTRO-4 | Version 1, grown by capabilities alone; a client that asks for none sees the first form, byte for byte | `[PROTOCOL The Native Protocol]` | done |
 
 ### Frames
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-FRAME-1 | The header: kind `u8`, then the body's length `u32` little-endian, the header not counted; written and read | `[PROTOCOL Frames]` | not yet |
-| P-FRAME-2 | A kind read in the direction it travels: `C` from a client is Close, from the server Challenge | `[PROTOCOL Frames]` | not yet |
-| P-FRAME-3 | A kind the reader does not know fails the connection (SQLCODE -919, SQLSTATE 08006) | `[PROTOCOL Frames]` | not yet |
-| P-FRAME-4 | A body cut short fails the connection | `[PROTOCOL Frames]` | not yet |
-| P-FRAME-5 | Bytes left over after a message's last field fail the connection | `[PROTOCOL Frames]` | not yet |
-| P-FRAME-6 | Replies taken up to 16 MiB of body unless the program says otherwise; a longer one fails the connection | `[PROTOCOL Frames]` | not yet |
+| P-FRAME-1 | The header: kind `u8`, then the body's length `u32` little-endian, the header not counted; written and read | `[PROTOCOL Frames]` | done by turborel-c |
+| P-FRAME-2 | A kind read in the direction it travels: `C` from a client is Close, from the server Challenge | `[PROTOCOL Frames]` | done by turborel-c |
+| P-FRAME-3 | A kind the reader does not know fails the connection (SQLCODE -919, SQLSTATE 08006) | `[PROTOCOL Frames]` | done by turborel-c |
+| P-FRAME-4 | A body cut short fails the connection | `[PROTOCOL Frames]` | done by turborel-c |
+| P-FRAME-5 | Bytes left over after a message's last field fail the connection | `[PROTOCOL Frames]` | done by turborel-c |
+| P-FRAME-6 | Replies taken up to 16 MiB of body unless the program says otherwise; a longer one fails the connection | `[PROTOCOL Frames]` | done by turborel-c |
 
 ### Compressed frames
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-ZFRAME-1 | A frame sent compressed as kind `z`, once `compression` is granted: the held frame's kind, its body's length, a zlib stream of the body | `[PROTOCOL Compressed frames]` | not yet |
-| P-ZFRAME-2 | A threshold of the client's own for compressing, a frame sent as it is where compressing would not shorten it | `[PROTOCOL Compressed frames]` | not yet |
-| P-ZFRAME-3 | A `z` frame received inflated to at most its `length`, itself at most the longest body taken | `[PROTOCOL Compressed frames]` | not yet |
-| P-ZFRAME-4 | A `z` frame holding another `z` frame fails the connection | `[PROTOCOL Compressed frames]` | not yet |
-| P-ZFRAME-5 | A `z` frame that inflates to another length fails the connection | `[PROTOCOL Compressed frames]` | not yet |
-| P-ZFRAME-6 | A `z` frame received when `compression` was not granted fails the connection | `[PROTOCOL Compressed frames]` | not yet |
+| P-ZFRAME-1 | A frame sent compressed as kind `z`, once `compression` is granted: the held frame's kind, its body's length, a zlib stream of the body | `[PROTOCOL Compressed frames]` | done by turborel-c |
+| P-ZFRAME-2 | A threshold of the client's own for compressing, a frame sent as it is where compressing would not shorten it | `[PROTOCOL Compressed frames]` | done by turborel-c |
+| P-ZFRAME-3 | A `z` frame received inflated to at most its `length`, itself at most the longest body taken | `[PROTOCOL Compressed frames]` | done by turborel-c |
+| P-ZFRAME-4 | A `z` frame holding another `z` frame fails the connection | `[PROTOCOL Compressed frames]` | done by turborel-c |
+| P-ZFRAME-5 | A `z` frame that inflates to another length fails the connection | `[PROTOCOL Compressed frames]` | done by turborel-c |
+| P-ZFRAME-6 | A `z` frame received when `compression` was not granted fails the connection | `[PROTOCOL Compressed frames]` | done by turborel-c |
 
 ### Values and fields
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-FIELD-1 | `u8`, `u32` and `u64`, least significant byte first | `[PROTOCOL Values and fields]` | not yet |
-| P-FIELD-2 | `i32 as u32` and `i64 as u64`, a signed number's bits in an unsigned field of its size | `[PROTOCOL Values and fields]` | not yet |
-| P-FIELD-3 | `i128`, 16 bytes, two's complement, least significant first | `[PROTOCOL Values and fields]` | not yet |
-| P-FIELD-4 | flag: `u8`, 0 or 1; any other byte fails the connection | `[PROTOCOL Values and fields]` | not yet |
-| P-FIELD-5 | string: its length in bytes, `u32`, then its UTF-8 | `[PROTOCOL Values and fields]` | not yet |
-| P-FIELD-6 | bytes: its length, `u32`, then the bytes | `[PROTOCOL Values and fields]` | not yet |
-| P-FIELD-7 | list: its count, `u32`, then each item; strings, a list of strings | `[PROTOCOL Values and fields]` | not yet |
-| P-FIELD-8 | key: 16 bytes, with no length before them | `[PROTOCOL Values and fields]` | not yet |
-| P-FIELD-9 | A count larger than what follows fails as the body runs out, reserving no memory for it | `[PROTOCOL Values and fields]` | not yet |
+| P-FIELD-1 | `u8`, `u32` and `u64`, least significant byte first | `[PROTOCOL Values and fields]` | done by turborel-c |
+| P-FIELD-2 | `i32 as u32` and `i64 as u64`, a signed number's bits in an unsigned field of its size | `[PROTOCOL Values and fields]` | done by turborel-c |
+| P-FIELD-3 | `i128`, 16 bytes, two's complement, least significant first | `[PROTOCOL Values and fields]` | done by turborel-c |
+| P-FIELD-4 | flag: `u8`, 0 or 1; any other byte fails the connection | `[PROTOCOL Values and fields]` | done by turborel-c |
+| P-FIELD-5 | string: its length in bytes, `u32`, then its UTF-8 | `[PROTOCOL Values and fields]` | done by turborel-c |
+| P-FIELD-6 | bytes: its length, `u32`, then the bytes | `[PROTOCOL Values and fields]` | done by turborel-c |
+| P-FIELD-7 | list: its count, `u32`, then each item; strings, a list of strings | `[PROTOCOL Values and fields]` | done by turborel-c |
+| P-FIELD-8 | key: 16 bytes, with no length before them | `[PROTOCOL Values and fields]` | done by turborel-c |
+| P-FIELD-9 | A count larger than what follows fails as the body runs out, reserving no memory for it | `[PROTOCOL Values and fields]` | done by turborel-c |
+| P-FIELD-10 | A value whose body its reader cannot take leaves its frame read whole and the stream in step: the request fails with the value's error, not of class 08, after the rest of its replies are read past to the last; a malformed frame loses the connection (08006) | `[PROTOCOL Values and fields]` | not yet |
 
 ### Data types
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-TYPE-1 | 1 CHARACTER: length `u32`, units `u8` (0 characters, 1 octets) | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-2 | 2 exact numeric: precision `u32`, scale `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-3 | 3 approximate numeric: precision `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-4 | 4 a plug-in's type: its name, its parameters as a list of `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-5 | 5 CHARACTER VARYING: length `u32`, units `u8` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-6 | 6 BINARY: length `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-7 | 7 BINARY VARYING: length `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-8 | 8 DATE: precision `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-9 | 9 TIME: precision `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-10 | 10 TIME WITH TIME ZONE: precision `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-11 | 11 TIMESTAMP: precision `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-12 | 12 TIMESTAMP WITH TIME ZONE: precision `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-13 | 13 INTERVAL: start field, end field, leading precision, fractional precision, each `u32`; fields 0 YEAR, 1 MONTH, 2 DAY, 3 HOUR, 4 MINUTE, 5 SECOND | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-14 | 14 BOOLEAN: nothing | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-15 | 15 DECFLOAT: precision `u32` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-16 | 16 array: maximum cardinality `u32`, then the element type | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-17 | 17 row: a list of each field's name, then its type | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-18 | 18 CHARACTER LARGE OBJECT: length `u64`, units `u8` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-19 | 19 BINARY LARGE OBJECT: length `u64`, units `u8` | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-22 | 22 multiset: the element type | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-23 | 23 structured type: its schema and name; its proper supertypes, each schema and name | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-24 | 24 reference type: the referenced type's names; scoped `u8`, and if 1 the scope's schema and name | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-25 | 25 JSON: nothing | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-26 | 26 XML: primary modifier `u8` (DOCUMENT, CONTENT, SEQUENCE), secondary `u8` (UNTYPED, ANY, XMLSCHEMA); of XMLSCHEMA, the schema's schema and name, its namespace and its element | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-27 | 27 UUID: nothing (gap G1) | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-100 | A distinct type written as its source type | `[PROTOCOL Data types]` | not yet |
-| P-TYPE-101 | A plug-in's type the client does not have read by its name, its values shown by their text | `[PROTOCOL Data types]` | not yet |
+| P-TYPE-1 | 1 CHARACTER: length `u32`, units `u8` (0 characters, 1 octets) | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-2 | 2 exact numeric: precision `u32`, scale `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-3 | 3 approximate numeric: precision `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-4 | 4 a plug-in's type: its name, its parameters as a list of `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-5 | 5 CHARACTER VARYING: length `u32`, units `u8` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-6 | 6 BINARY: length `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-7 | 7 BINARY VARYING: length `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-8 | 8 DATE: precision `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-9 | 9 TIME: precision `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-10 | 10 TIME WITH TIME ZONE: precision `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-11 | 11 TIMESTAMP: precision `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-12 | 12 TIMESTAMP WITH TIME ZONE: precision `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-13 | 13 INTERVAL: start field, end field, leading precision, fractional precision, each `u32`; fields 0 YEAR, 1 MONTH, 2 DAY, 3 HOUR, 4 MINUTE, 5 SECOND | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-14 | 14 BOOLEAN: nothing | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-15 | 15 DECFLOAT: precision `u32` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-16 | 16 array: maximum cardinality `u32`, then the element type | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-17 | 17 row: a list of each field's name, then its type | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-18 | 18 CHARACTER LARGE OBJECT: length `u64`, units `u8` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-19 | 19 BINARY LARGE OBJECT: length `u64`, units `u8` | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-22 | 22 multiset: the element type | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-23 | 23 structured type: its schema and name; its proper supertypes, each schema and name | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-24 | 24 reference type: the referenced type's names; scoped `u8`, and if 1 the scope's schema and name | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-25 | 25 JSON: nothing | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-26 | 26 XML: primary modifier `u8` (DOCUMENT, CONTENT, SEQUENCE), secondary `u8` (UNTYPED, ANY, XMLSCHEMA); of XMLSCHEMA, the schema's schema and name, its namespace and its element | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-27 | 27 UUID: nothing (gap G1) | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-100 | A distinct type written as its source type | `[PROTOCOL Data types]` | done by turborel-c |
+| P-TYPE-101 | A plug-in's type the client does not have read by its name, its values shown by their text | `[PROTOCOL Data types]` | done by turborel-c |
 
 ### Values
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-VAL-0 | 0 null: nothing | `[PROTOCOL Values]` | not yet |
-| P-VAL-1 | 1 character string: string, of a CHARACTER or a CHARACTER VARYING column alike | `[PROTOCOL Values]` | not yet |
-| P-VAL-2 | 2 exact number: units `i128`, then scale `u32`, units divided by ten to the scale; at the limits of `i128` and of scale | `[PROTOCOL Values]` | not yet |
-| P-VAL-3 | 3 approximate number: an IEEE 754 double's bits, `u64`; NaN and -0.0 kept | `[PROTOCOL Values]` | not yet |
-| P-VAL-4 | 4 a plug-in's value: its type's name, its text, its bytes | `[PROTOCOL Values]` | not yet |
-| P-VAL-6 | 6 binary string: bytes | `[PROTOCOL Values]` | not yet |
-| P-VAL-8 | 8 date, written as a timestamp | `[PROTOCOL Values]` | not yet |
-| P-VAL-9 | 9 time, written as a timestamp | `[PROTOCOL Values]` | not yet |
-| P-VAL-11 | 11 timestamp: zoned `u8`; precision `u8`; the displacement in minutes, an `i16` in the low half of a `u32`, -12:59 to +14:00; the instant, microseconds in UTC, `i64 as u64` | `[PROTOCOL Values]` | not yet |
-| P-VAL-13 | 13 interval: its qualifier as the INTERVAL type writes it, then units `i128`, months or microseconds; every qualifier | `[PROTOCOL Values]` | not yet |
-| P-VAL-14 | 14 truth value: `u8`, 0 false, 1 true; unknown as null | `[PROTOCOL Values]` | not yet |
-| P-VAL-15 | 15 decimal floating point: coefficient `i128`, then exponent `i32 as u32` | `[PROTOCOL Values]` | not yet |
-| P-VAL-16 | 16 array: a list of values, nested | `[PROTOCOL Values]` | not yet |
-| P-VAL-17 | 17 row: a list of values, one for each field | `[PROTOCOL Values]` | not yet |
-| P-VAL-20 | 20 large object, whole: kind `u8` (0 character, 1 binary), then its octets | `[PROTOCOL Values]` | not yet |
-| P-VAL-21 | 21 large object, by locator: kind `u8`, locator `u32`, its octets `u64`, its characters `u64` | `[PROTOCOL Values]` | not yet |
-| P-VAL-22 | 22 multiset: a list of values, in no set order | `[PROTOCOL Values]` | not yet |
-| P-VAL-23 | 23 structured value: its most specific type's schema and name, then its attributes | `[PROTOCOL Values]` | not yet |
-| P-VAL-24 | 24 reference: bytes | `[PROTOCOL Values]` | not yet |
-| P-VAL-25 | 25 JSON: bytes, the binary tree of Turborel's RULES.md D89 (gap G3), read to the language's JSON value or text and written from one; its nodes are the P-JSON rows | `[PROTOCOL Values]` | not yet |
-| P-VAL-26 | 26 XML: its serialization as CONTENT, string | `[PROTOCOL Values]` | not yet |
-| P-VAL-27 | 27 UUID: bytes, a count of 16, then the 16 octets (gap G1) | `[PROTOCOL Values]` | not yet |
-| P-VAL-100 | A value's tag says how it is written, not its column's type: CHARACTER VARYING written with tag 1 | `[PROTOCOL Values]` | not yet |
-| P-VAL-101 | A datetime's zoned byte 1 for a type WITH TIME ZONE; without a zone, the displacement the value is shown in | `[PROTOCOL Values]` | not yet |
+| P-VAL-0 | 0 null: nothing | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-1 | 1 character string: string, of a CHARACTER or a CHARACTER VARYING column alike | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-2 | 2 exact number: units `i128`, then scale `u32`, units divided by ten to the scale; at the limits of `i128` and of scale | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-3 | 3 approximate number: an IEEE 754 double's bits, `u64`; NaN and -0.0 kept | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-4 | 4 a plug-in's value: its type's name, its text, its bytes | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-6 | 6 binary string: bytes | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-8 | 8 date, written as a timestamp | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-9 | 9 time, written as a timestamp | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-11 | 11 timestamp: zoned `u8`; precision `u8`; the displacement in minutes, an `i16` in the low half of a `u32`, -12:59 to +14:00; the instant, microseconds in UTC, `i64 as u64` | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-13 | 13 interval: its qualifier as the INTERVAL type writes it, then units `i128`, months or microseconds; every qualifier | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-14 | 14 truth value: `u8`, 0 false, 1 true; unknown as null | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-15 | 15 decimal floating point: coefficient `i128`, then exponent `i32 as u32` | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-16 | 16 array: a list of values, nested | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-17 | 17 row: a list of values, one for each field | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-20 | 20 large object, whole: kind `u8` (0 character, 1 binary), then its octets | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-21 | 21 large object, by locator: kind `u8`, locator `u32`, its octets `u64`, its characters `u64` | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-22 | 22 multiset: a list of values, in no set order | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-23 | 23 structured value: its most specific type's schema and name, then its attributes | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-24 | 24 reference: bytes | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-25 | 25 JSON: bytes, the binary tree of Turborel's RULES.md D89 (gap G3), read to the language's JSON value or text and written from one; its nodes are the P-JSON rows | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-26 | 26 XML: its serialization as CONTENT, string | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-27 | 27 UUID: bytes, a count of 16, then the 16 octets (gap G1) | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-100 | A value's tag says how it is written, not its column's type: CHARACTER VARYING written with tag 1 | `[PROTOCOL Values]` | done by turborel-c |
+| P-VAL-101 | A datetime's zoned byte 1 for a type WITH TIME ZONE; without a zone, the displacement the value is shown in | `[PROTOCOL Values]` | done by turborel-c |
 | P-VAL-102 | A large object of at most SERVER.LOB_INLINE_BYTES, 64 KiB by default, read whole; a longer one by its locator, valid until its transaction ends | `[PROTOCOL Values]` | not yet |
 | P-VAL-103 | A large object sent whole, or as a locator the client made with Lob requests | `[PROTOCOL Values]` | not yet |
 
 ### JSON values
 
-Gap G3: the page gives a JSON value's body as "its stored form".
-These rows follow Turborel's RULES.md D89 and `src/json/binary.rs`,
-cited under the page's section on values.
+The page's section JSON values, from b40bd830, sets these rows out;
+they follow Turborel's RULES.md D89 and `src/json/binary.rs`.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-JSON-0 | Node 0 null | `[PROTOCOL Values]` | not yet |
-| P-JSON-1 | Node 1 false | `[PROTOCOL Values]` | not yet |
-| P-JSON-2 | Node 2 true | `[PROTOCOL Values]` | not yet |
-| P-JSON-3 | Node 3 integer: `i64` | `[PROTOCOL Values]` | not yet |
-| P-JSON-4 | Node 4 decimal: units `i64`, scale `u8` | `[PROTOCOL Values]` | not yet |
-| P-JSON-5 | Node 5 wide decimal: units `i128`, scale `u32` | `[PROTOCOL Values]` | not yet |
-| P-JSON-6 | Node 6 decimal floating point: coefficient `i128`, exponent `i32` | `[PROTOCOL Values]` | not yet |
-| P-JSON-7 | Node 7 approximate: `f64` bits | `[PROTOCOL Values]` | not yet |
-| P-JSON-8 | Node 8 string: octets `u32`, UTF-8 | `[PROTOCOL Values]` | not yet |
-| P-JSON-9 | Node 9 datetime: moment `u8` (date, time, timestamp), UTC `i64`, zone minutes `i16`, zoned `u8`, precision `u8` | `[PROTOCOL Values]` | not yet |
-| P-JSON-10 | Node 10 array: count `u32`, size `u32`, an offset `u32` of each element, the elements | `[PROTOCOL Values]` | not yet |
-| P-JSON-11 | Node 11 object: count `u32`, size `u32`, an offset `u32` of each member in key order, the members in written order, each key and value | `[PROTOCOL Values]` | not yet |
-| P-JSON-100 | A document: a version octet, 1, then its root node; another version refused | `[PROTOCOL Values]` | not yet |
-| P-JSON-101 | An object's directory sorted by key octets, members of one key in written order; written order kept | `[PROTOCOL Values]` | not yet |
+| P-JSON-0 | Node 0 null | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-1 | Node 1 false | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-2 | Node 2 true | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-3 | Node 3 integer: `i64` | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-4 | Node 4 decimal: units `i64`, scale `u8` | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-5 | Node 5 wide decimal: units `i128`, scale `u32` | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-6 | Node 6 decimal floating point: coefficient `i128`, exponent `i32` | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-7 | Node 7 approximate: `f64` bits | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-8 | Node 8 string: octets `u32`, UTF-8 | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-9 | Node 9 datetime: moment `u8` (date, time, timestamp), UTC `i64`, zone minutes `i16`, zoned `u8`, precision `u8` | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-10 | Node 10 array: count `u32`, size `u32`, an offset `u32` of each element, the elements | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-11 | Node 11 object: count `u32`, size `u32`, an offset `u32` of each member in key order, the members in written order, each key and value | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-100 | A document: a version octet, 1, then its root node; another version refused | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-101 | An object's directory sorted by key octets, members of one key in written order; written order kept | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-102 | Limits: arrays and objects nest at most 128 deep, a document is at most 256 MiB; a damaged document or another version refused (SQLCODE -916 at the server) | `[PROTOCOL Values]` | done by turborel-c |
+| P-JSON-103 | An exact number written in the narrowest of its three nodes, and a decimal keeping the scale it was written with: 1.50 is units 150, scale 2 | `[PROTOCOL Values]` | done by turborel-c |
+
+### Declared types
+
+| ID | Row | Citation | Status |
+|---|---|---|---|
+| P-DECL-1 | Granted `declared-types`, a Prepared or Description of one column or more ends with tail 19, in the columns' order; not granted, the columns alone, byte for byte as before | `[PROTOCOL Declared types]` | done |
+| P-DECL-2 | Each column's name as the Information Schema's DATA_TYPE gives it, and its whole type as SQL writes it | `[PROTOCOL Declared types]` | done |
+| P-DECL-3 | The page's table: SMALLINT, INTEGER, BIGINT, DECIMAL(9,2), NUMERIC(5) as NUMERIC(5,0), REAL, DOUBLE PRECISION, FLOAT(20) as FLOAT(24), a distinct type as USER-DEFINED with its name, INTEGER ARRAY[3] as ARRAY | `[PROTOCOL Declared types]` | done |
+| P-DECL-4 | Values written by their own tags whether or not it is granted; the tag tells how to read a value, the declared type what the column shows | `[PROTOCOL Declared types]` | done |
 
 ### Composite fields
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-COMP-1 | row: a list of values | `[PROTOCOL Composite fields]` | not yet |
-| P-COMP-2 | column: named flag; its name, if named; data type; not null flag | `[PROTOCOL Composite fields]` | not yet |
-| P-COMP-3 | parameter: varying flag, 1 where the server gives CHARACTER VARYING of the longest length; data type | `[PROTOCOL Composite fields]` | not yet |
-| P-COMP-4 | failure: SQLCODE `i32 as u32`; SQLSTATE, 5 characters; message; cited flag and the rule; placed flag and the position, in characters; active flag; tail 7 to 15 | `[PROTOCOL Composite fields]` | not yet |
+| P-COMP-1 | row: a list of values | `[PROTOCOL Composite fields]` | done by turborel-c |
+| P-COMP-2 | column: named flag; its name, if named; data type; not null flag | `[PROTOCOL Composite fields]` | done by turborel-c |
+| P-COMP-3 | parameter: varying flag, 1 where the server gives CHARACTER VARYING of the longest length; data type | `[PROTOCOL Composite fields]` | done by turborel-c |
+| P-COMP-4 | failure: SQLCODE `i32 as u32`; SQLSTATE, 5 characters; message; cited flag and the rule; placed flag and the position, in characters; active flag; tail 7 to 15 | `[PROTOCOL Composite fields]` | done by turborel-c |
 
 ### The tail
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-TAIL-1 | 1 attributes, on Hello, Query and Execute: a count, then each name and value | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-2 | 2 multi, on Query | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-3 | 3 cursor, `u32`, on Execute, Fetch and Close | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-4 | 4 position, `u64`, on Complete | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-5 | 5 more, on Complete | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-6 | 6 rows, `u64`, on Complete | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-7 | 7 severity, on a failure and Notice | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-8 | 8 detail, on a failure and Notice | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-9 | 9 hint, on a failure and Notice | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-10 | 10 context, on a failure and Notice | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-11 | 11 schema, on a failure and Notice | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-12 | 12 table, on a failure and Notice | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-13 | 13 column, on a failure and Notice | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-14 | 14 data type, on a failure and Notice | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-15 | 15 constraint, on a failure and Notice | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-16 | 16 generated, a list of strings, on Complete | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-17 | 17 conditions, a list of failures as bytes, on Complete | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-18 | 18 time, total, queued and locks, each `u64`, on Complete | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-100 | Tags in increasing order; a tag the message does not take, or one not past the last, fails the connection | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-101 | A field written only where its capability was granted; a message with an empty tail is its first form exactly | `[PROTOCOL The tail]` | not yet |
-| P-TAIL-102 | At most 32 attributes, a name of 1 to 64 bytes, a value of at most 1024; more fails the connection | `[PROTOCOL The tail]` | not yet |
+| P-TAIL-1 | 1 attributes, on Hello, Query and Execute: a count, then each name and value | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-2 | 2 multi, on Query | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-3 | 3 cursor, `u32`, on Execute, Fetch and Close | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-4 | 4 position, `u64`, on Complete | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-5 | 5 more, on Complete | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-6 | 6 rows, `u64`, on Complete | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-7 | 7 severity, on a failure and Notice | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-8 | 8 detail, on a failure and Notice | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-9 | 9 hint, on a failure and Notice | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-10 | 10 context, on a failure and Notice | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-11 | 11 schema, on a failure and Notice | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-12 | 12 table, on a failure and Notice | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-13 | 13 column, on a failure and Notice | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-14 | 14 data type, on a failure and Notice | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-15 | 15 constraint, on a failure and Notice | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-16 | 16 generated, a list of strings, on Complete | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-17 | 17 conditions, a list of failures as bytes, on Complete | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-18 | 18 time, total, queued and locks, each `u64`, on Complete | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-19 | 19 declared: a count `u32`, then each column's type name and its type as SQL writes it, strings, on Prepared and Description | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-100 | Tags in increasing order; a tag the message does not take, or one not past the last, fails the connection | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-101 | A field written only where its capability was granted; a message with an empty tail is its first form exactly | `[PROTOCOL The tail]` | done by turborel-c |
+| P-TAIL-102 | At most 32 attributes, a name of 1 to 64 bytes, a value of at most 1024; more fails the connection | `[PROTOCOL The tail]` | done by turborel-c |
 
 ### Opening a connection
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-OPEN-1 | A connection's first message is Hello, or Cancel | `[PROTOCOL Opening a connection]` | not yet |
-| P-OPEN-2 | Challenge and Answer, step by step, until the server accepts or refuses | `[PROTOCOL Opening a connection]` | not yet |
-| P-OPEN-3 | Refused: an Error, and the server closes | `[PROTOCOL Opening a connection]` | not yet |
-| P-OPEN-4 | Accepted: a Status for each session setting, with `status`, then Ready | `[PROTOCOL Opening a connection]` | not yet |
-| P-OPEN-5 | The capabilities granted read from Ready, those asked for that the server has, in the table's order | `[PROTOCOL Opening a connection]` | not yet |
-| P-OPEN-6 | Ready at login never compressed; compression begins after it | `[PROTOCOL Opening a connection]` | not yet |
-| P-OPEN-7 | A version other than 1 refused (SQLSTATE 08004) | `[PROTOCOL Opening a connection]` | not yet |
-| P-OPEN-8 | A user name not an identifier, or a mechanism not served, refused before any exchange (SQLSTATE 28000) | `[PROTOCOL Opening a connection]` | not yet |
+| P-OPEN-1 | A connection's first message is Hello, or Cancel | `[PROTOCOL Opening a connection]` | done |
+| P-OPEN-2 | Challenge and Answer, step by step, until the server accepts or refuses | `[PROTOCOL Opening a connection]` | done |
+| P-OPEN-3 | Refused: an Error, and the server closes | `[PROTOCOL Opening a connection]` | done |
+| P-OPEN-4 | Accepted: a Status for each session setting, with `status`, then Ready | `[PROTOCOL Opening a connection]` | done |
+| P-OPEN-5 | The capabilities granted read from Ready, those asked for that the server has, in the table's order | `[PROTOCOL Opening a connection]` | done |
+| P-OPEN-6 | Ready at login never compressed; compression begins after it | `[PROTOCOL Opening a connection]` | done |
+| P-OPEN-7 | A version other than 1 refused (SQLSTATE 08004) | `[PROTOCOL Opening a connection]` | done |
+| P-OPEN-8 | A user name not an identifier, or a mechanism not served, refused before any exchange (SQLSTATE 28000) | `[PROTOCOL Opening a connection]` | done |
 
 ### Mechanisms
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-MECH-1 | `trust`, accepted at once | `[PROTOCOL Mechanisms]` | not yet |
-| P-MECH-2 | `password`, the password's UTF-8, only over TLS, a Unix socket or a named pipe | `[PROTOCOL Mechanisms]` | not yet |
-| P-MECH-3 | `certificate`, by the TLS client certificate's common name | `[PROTOCOL Mechanisms]` | not yet |
-| P-MECH-4 | `scram-sha-256`: client-first in Hello, server-first, client-final, server-final, an empty Answer (RFC 5802, RFC 7677) | `[PROTOCOL Mechanisms]` | not yet |
-| P-MECH-5 | The server's SCRAM signature checked before the last, empty Answer | `[PROTOCOL Mechanisms]` | not yet |
-| P-MECH-6 | `scram-sha-256-plus` bound by `tls-exporter`, as its GS2 header names | `[PROTOCOL Mechanisms]` | not yet |
-| P-MECH-7 | `scram-sha-256-plus` bound by `tls-server-end-point`, as its GS2 header names | `[PROTOCOL Mechanisms]` | not yet |
+| P-MECH-1 | `trust`, accepted at once | `[PROTOCOL Mechanisms]` | done |
+| P-MECH-2 | `password`, the password's UTF-8, only over TLS, a Unix socket or a named pipe | `[PROTOCOL Mechanisms]` | done |
+| P-MECH-3 | `certificate`, by the TLS client certificate's common name | `[PROTOCOL Mechanisms]` | done |
+| P-MECH-4 | `scram-sha-256`: client-first in Hello, server-first, client-final, server-final, an empty Answer (RFC 5802, RFC 7677) | `[PROTOCOL Mechanisms]` | done |
+| P-MECH-5 | The server's SCRAM signature checked before the last, empty Answer | `[PROTOCOL Mechanisms]` | done |
+| P-MECH-6 | `scram-sha-256-plus` bound by `tls-exporter`, as its GS2 header names | `[PROTOCOL Mechanisms]` | done |
+| P-MECH-7 | `scram-sha-256-plus` bound by `tls-server-end-point`, as its GS2 header names | `[PROTOCOL Mechanisms]` | done |
 
 ### Capabilities
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
 | P-CAP-1 | `notices` | `[PROTOCOL Capabilities]` | not yet |
-| P-CAP-2 | `status` | `[PROTOCOL Capabilities]` | not yet |
+| P-CAP-2 | `status` | `[PROTOCOL Capabilities]` | done |
 | P-CAP-3 | `diagnostics` | `[PROTOCOL Capabilities]` | not yet |
 | P-CAP-4 | `describe` | `[PROTOCOL Capabilities]` | not yet |
 | P-CAP-5 | `cursors` | `[PROTOCOL Capabilities]` | not yet |
@@ -271,16 +291,17 @@ cited under the page's section on values.
 | P-CAP-7 | `reset` | `[PROTOCOL Capabilities]` | not yet |
 | P-CAP-8 | `change-user` | `[PROTOCOL Capabilities]` | not yet |
 | P-CAP-9 | `query-attributes` | `[PROTOCOL Capabilities]` | not yet |
-| P-CAP-10 | `connection-attributes` | `[PROTOCOL Capabilities]` | not yet |
+| P-CAP-10 | `connection-attributes` | `[PROTOCOL Capabilities]` | done |
 | P-CAP-11 | `multi-statement` | `[PROTOCOL Capabilities]` | not yet |
-| P-CAP-12 | `compression` | `[PROTOCOL Capabilities]` | not yet |
+| P-CAP-12 | `compression` | `[PROTOCOL Capabilities]` | done |
 | P-CAP-13 | `commit-position` | `[PROTOCOL Capabilities]` | not yet |
 | P-CAP-14 | `copy` | `[PROTOCOL Capabilities]` | not yet |
 | P-CAP-15 | `row-counts` | `[PROTOCOL Capabilities]` | not yet |
 | P-CAP-16 | `generated-values` | `[PROTOCOL Capabilities]` | not yet |
 | P-CAP-17 | `fetch-ends` | `[PROTOCOL Capabilities]` | not yet |
 | P-CAP-18 | `conditions` | `[PROTOCOL Capabilities]` | not yet |
-| P-CAP-19 | No request or tail field of a capability not granted is sent | `[PROTOCOL Capabilities]` | not yet |
+| P-CAP-19 | No request or tail field of a capability not granted is sent | `[PROTOCOL Capabilities]` | done |
+| P-CAP-20 | `declared-types`: a Prepared and a Description carry each column's declared type, tail 19 | `[PROTOCOL Capabilities]` | done |
 
 ### Requests
 
@@ -293,20 +314,20 @@ cited under the page's section on values.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-HELLO-1 | Hello: version 1, user, mechanism, initial bytes, capabilities, tail 1 attributes | `[PROTOCOL Hello 'H']` | not yet |
-| P-HELLO-2 | Connection attributes in Hello, which every server reads, granted or not | `[PROTOCOL Hello 'H']` | not yet |
+| P-HELLO-1 | Hello: version 1, user, mechanism, initial bytes, capabilities, tail 1 attributes | `[PROTOCOL Hello 'H']` | done |
+| P-HELLO-2 | Connection attributes in Hello, which every server reads, granted or not | `[PROTOCOL Hello 'H']` | done |
 
 ### Answer 'A'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-ANSWER-1 | Answer: bytes, the client's answer to a Challenge | `[PROTOCOL Answer 'A']` | not yet |
+| P-ANSWER-1 | Answer: bytes, the client's answer to a Challenge | `[PROTOCOL Answer 'A']` | done |
 
 ### Query 'Q'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-QUERY-1 | Query: sql, ends flag, tail 1 attributes, 2 multi | `[PROTOCOL Query 'Q']` | not yet |
+| P-QUERY-1 | Query: sql, ends flag, tail 1 attributes, 2 multi | `[PROTOCOL Query 'Q']` | done |
 | P-QUERY-2 | A query answered by Description, Rows and Complete; another statement by Complete; a failure by Error | `[PROTOCOL Query 'Q']` | not yet |
 | P-QUERY-3 | A query that returns no row completes with SQLCODE 100, SQLSTATE 02000 | `[PROTOCOL Query 'Q']` | not yet |
 | P-QUERY-4 | `ends`: committed as the statement succeeds, rolled back as it fails, the reply saying no transaction is active; a failing commit's Error in place of the Complete | `[PROTOCOL Query 'Q']` | not yet |
@@ -324,10 +345,11 @@ cited under the page's section on values.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-EXEC-1 | Execute: statement, values, rows (0 for all), ends flag, tail 1 attributes, 3 cursor | `[PROTOCOL Execute 'E']` | not yet |
+| P-EXEC-1 | Execute: statement, values, rows (0 for all), ends flag, tail 1 attributes, 3 cursor | `[PROTOCOL Execute 'E']` | done |
 | P-EXEC-2 | A query's rows in Rows with no Description, then Suspended if the cursor has more, else Complete, the cursor closed | `[PROTOCOL Execute 'E']` | not yet |
 | P-EXEC-3 | `ends` as a Query's; a cursor left open keeps the transaction, ended with it under `fetch-ends` | `[PROTOCOL Execute 'E']` | not yet |
 | P-EXEC-4 | Cursor 0 unless tag 3 names another, with `cursors`; one already open fails (SQLSTATE 24000) | `[PROTOCOL Execute 'E']` | not yet |
+| P-EXEC-5 | A CALL with a `?` for an OUT or INOUT parameter first sends one Rows reply of one row, of the columns Prepared gave, each such parameter's value once the procedure ran | `[PROTOCOL Execute 'E']` | not yet |
 
 ### Fetch 'F'
 
@@ -354,7 +376,7 @@ cited under the page's section on values.
 |---|---|---|---|
 | P-LOB-1 | 0 read: locator, from, count, characters flag; answered by a Lob reply of data | `[PROTOCOL Lob 'L']` | not yet |
 | P-LOB-2 | 1 create: kind; answered by a Lob reply of a locator | `[PROTOCOL Lob 'L']` | not yet |
-| P-LOB-3 | 2 append: locator, bytes, a character free to split between appends; answered by Complete | `[PROTOCOL Lob 'L']` | not yet |
+| P-LOB-3 | 2 append: locator, bytes, a character free to split between appends; answered by Complete. A character LOB's octets checked as UTF-8 as each Append comes: one that is not refused with 22021 by its Append, every later Append and its use refused; one ending within a character refused, 22021, where used | `[PROTOCOL Lob 'L']` | not yet |
 | P-LOB-4 | 3 free: locator; answered by Complete | `[PROTOCOL Lob 'L']` | not yet |
 | P-LOB-5 | 4 hold: locator, kept past its transaction's commit; answered by Complete | `[PROTOCOL Lob 'L']` | not yet |
 
@@ -362,14 +384,14 @@ cited under the page's section on values.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-CANCEL-1 | Cancel: the key Ready gave, the first and only message of a connection of its own, closed with no reply | `[PROTOCOL Cancel 'Z']` | not yet |
-| P-CANCEL-2 | The statement cancelled fails with SQLCODE -920, SQLSTATE TB920 | `[PROTOCOL Cancel 'Z']` | not yet |
+| P-CANCEL-1 | Cancel: the key Ready gave, the first and only message of a connection of its own, closed with no reply | `[PROTOCOL Cancel 'Z']` | done |
+| P-CANCEL-2 | The statement cancelled fails with SQLCODE -920, SQLSTATE TB920 | `[PROTOCOL Cancel 'Z']` | done |
 
 ### Terminate 'X'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-TERM-1 | Terminate: the session ends, its transaction as SESSION.COMMIT_AT_END says; a failing commit's Error before the close | `[PROTOCOL Terminate 'X']` | not yet |
+| P-TERM-1 | Terminate: the session ends, its transaction as SESSION.COMMIT_AT_END says; a failing commit's Error before the close | `[PROTOCOL Terminate 'X']` | done |
 
 ### Describe 'Y'
 
@@ -403,14 +425,14 @@ cited under the page's section on values.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-COPYIN-1 | CopyIn: table, columns (none for every column), ends flag; no reply | `[PROTOCOL CopyIn 'I']` | not yet |
+| P-COPYIN-1 | CopyIn: table, columns (none for every column), ends flag; no reply | `[PROTOCOL CopyIn 'I']` | done |
 | P-COPYIN-2 | Until CopyEnd, only CopyData, CopyEnd and Ping sent | `[PROTOCOL CopyIn 'I']` | not yet |
 
 ### CopyData 'J'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-COPYDATA-1 | CopyData: a list of rows, as many at a time as the client likes; no reply | `[PROTOCOL CopyData 'J']` | not yet |
+| P-COPYDATA-1 | CopyData: a list of rows, as many at a time as the client likes; no reply | `[PROTOCOL CopyData 'J']` | done |
 
 ### CopyEnd 'N'
 
@@ -425,44 +447,45 @@ cited under the page's section on values.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-CHAL-1 | Challenge: bytes, the next step of an exchange | `[PROTOCOL Challenge 'C']` | not yet |
+| P-CHAL-1 | Challenge: bytes, the next step of an exchange | `[PROTOCOL Challenge 'C']` | done |
 
 ### Ready 'R'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-READY-1 | Ready: authorization, key (16 bytes), capabilities, server | `[PROTOCOL Ready 'R']` | not yet |
-| P-READY-2 | The cancel key kept as the client's secret | `[PROTOCOL Ready 'R']` | not yet |
+| P-READY-1 | Ready: authorization, key (16 bytes), capabilities, server | `[PROTOCOL Ready 'R']` | done |
+| P-READY-2 | The cancel key kept as the client's secret | `[PROTOCOL Ready 'R']` | done |
 
 ### Prepared 'P'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-PREPD-1 | Prepared: statement, parameters in the order of their `?` marks, columns (none of a statement not a query) | `[PROTOCOL Prepared 'P']` | not yet |
+| P-PREPD-1 | Prepared: statement, its input parameters in the order of their `?` marks, columns (a query's, or a CALL's output parameters', P-PREPD-2; none of another statement) | `[PROTOCOL Prepared 'P']` | done |
+| P-PREPD-2 | Parameters are a statement's inputs alone; a CALL's columns are one for each `?` of an OUT or INOUT parameter, in the procedure's parameter order, named and typed as each; an INOUT `?` is both a parameter and a column | `[PROTOCOL Prepared 'P']` | not yet |
 
 ### Description 'D'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-DESCR-1 | Description: columns, of a Query's rows or an open cursor | `[PROTOCOL Description 'D']` | not yet |
+| P-DESCR-1 | Description: columns, of a Query's rows or an open cursor | `[PROTOCOL Description 'D']` | done |
 
 ### Rows 'B'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-ROWS-1 | Rows: a batch of rows, read as it comes | `[PROTOCOL Rows 'B']` | not yet |
+| P-ROWS-1 | Rows: a batch of rows, read as it comes | `[PROTOCOL Rows 'B']` | done |
 
 ### Suspended 'S'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-SUSP-1 | Suspended: the rows asked for sent, the cursor having more | `[PROTOCOL Suspended 'S']` | not yet |
+| P-SUSP-1 | Suspended: the rows asked for sent, the cursor having more | `[PROTOCOL Suspended 'S']` | done |
 
 ### Complete 'K'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-COMPL-1 | Complete: SQLCODE 0 or 100, SQLSTATE, active flag, tail 4, 5, 6, 16, 17, 18 | `[PROTOCOL Complete 'K']` | not yet |
+| P-COMPL-1 | Complete: SQLCODE 0 or 100, SQLSTATE, active flag, tail 4, 5, 6, 16, 17, 18 | `[PROTOCOL Complete 'K']` | done |
 | P-COMPL-2 | Tag 4, the log position of the commit the statement made | `[PROTOCOL Complete 'K']` | not yet |
 | P-COMPL-3 | Tag 6, the rows a statement changed, or a query's rows in all at its end | `[PROTOCOL Complete 'K']` | not yet |
 | P-COMPL-4 | Tag 16, each identity value an INSERT generated, as SQL writes it, in the order of its rows | `[PROTOCOL Complete 'K']` | not yet |
@@ -473,42 +496,43 @@ cited under the page's section on values.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-ERROR-1 | Error: a failure, its tail 7 to 15 only with `diagnostics` | `[PROTOCOL Error 'E']` | not yet |
-| P-ERROR-2 | An Error of class 08 but 08003, or of class 28 as the connection is made, ends the connection | `[PROTOCOL Error 'E']` | not yet |
+| P-ERROR-1 | Error: a failure, its tail 7 to 15 only with `diagnostics` | `[PROTOCOL Error 'E']` | done |
+| P-ERROR-2 | An Error of class 08 but 08003, or of class 28 as the connection is made, ends the connection | `[PROTOCOL Error 'E']` | done |
 
 ### Lob 'L', the reply
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-LOBR-1 | 0 data: bytes | `[PROTOCOL Lob 'L']` | not yet |
-| P-LOBR-2 | 1 locator: `u32` | `[PROTOCOL Lob 'L']` | not yet |
+| P-LOBR-1 | 0 data: bytes | `[PROTOCOL Lob 'L']` | done |
+| P-LOBR-2 | 1 locator: `u32` | `[PROTOCOL Lob 'L']` | done |
 
 ### Notice 'N'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-NOTICE-1 | Notice: SQLSTATE, message, tail 7 to 15 with `diagnostics`, before the statement's completion | `[PROTOCOL Notice 'N']` | not yet |
+| P-NOTICE-1 | Notice: SQLSTATE, message, tail 7 to 15 with `diagnostics`, before the statement's completion | `[PROTOCOL Notice 'N']` | done |
 
 ### Status 'T'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-STATUS-1 | Status: name, value as SQL writes it, empty for a null | `[PROTOCOL Status 'T']` | not yet |
-| P-STATUS-2 | One of each at login and after Reset or ChangeUser; after a statement, one of each it changed; a setting reset told at the database's value | `[PROTOCOL Status 'T']` | not yet |
-| P-STATUS-3 | AUTHORIZATION | `[PROTOCOL Status 'T']` | not yet |
-| P-STATUS-4 | SCHEMA | `[PROTOCOL Status 'T']` | not yet |
-| P-STATUS-5 | READ_ONLY, YES or NO | `[PROTOCOL Status 'T']` | not yet |
-| P-STATUS-6 | SERVER_VERSION | `[PROTOCOL Status 'T']` | not yet |
-| P-STATUS-7 | SERVER_READ_ONLY, YES or NO (gap G2) | `[PROTOCOL Status 'T']` | not yet |
-| P-STATUS-8 | CATALOG (gap G2) | `[PROTOCOL Status 'T']` | not yet |
-| P-STATUS-9 | OWNER, YES or NO (gap G2) | `[PROTOCOL Status 'T']` | not yet |
-| P-STATUS-10 | Every setting a session may set for itself, SESSION.TIME_ZONE and TRANSACTION.ISOLATION among them | `[PROTOCOL Status 'T']` | not yet |
+| P-STATUS-1 | Status: name, value as SQL writes it, empty for a null | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-2 | One of each at login and after Reset or ChangeUser; after a statement, one of each it changed; a setting reset told at the database's value | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-3 | AUTHORIZATION | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-4 | SCHEMA | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-5 | READ_ONLY, YES or NO | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-6 | SERVER_VERSION | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-7 | SERVER_READ_ONLY, YES or NO (gap G2) | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-8 | CATALOG, the catalog's name, an identifier of 1 to 128 characters, never empty (gap G2) | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-9 | OWNER, YES or NO (gap G2) | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-10 | Every setting a session may set for itself, SESSION.TIME_ZONE and TRANSACTION.ISOLATION among them | `[PROTOCOL Status 'T']` | done |
+| P-STATUS-11 | At login before Ready, and after Reset or ChangeUser before the reply that ends it, one of each name in the page's table, in its order, then the session's own settings; after a statement only what it changed, before its completion | `[PROTOCOL Status 'T']` | done |
 
 ### Pong 'G'
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-PONG-1 | Pong, the answer to Ping | `[PROTOCOL Pong 'G']` | not yet |
+| P-PONG-1 | Pong, the answer to Ping | `[PROTOCOL Pong 'G']` | done |
 
 ### Conversations
 
@@ -530,17 +554,26 @@ cited under the page's section on values.
 | P-ERRN-3 | The server's own notices always as a Notice | `[PROTOCOL Errors and notices]` | not yet |
 | P-ERRN-4 | SQLSTATE 01T01, Reset or ChangeUser rolled back the transaction, a Notice of severity NOTICE | `[PROTOCOL Errors and notices]` | not yet |
 | P-ERRN-5 | SQLSTATE TBR01, SQLCODE -920, a replica that had not applied REPLICATION.READ_AFTER's position in time | `[PROTOCOL Errors and notices]` | not yet |
-| P-ERRN-6 | A malformed message, a request not granted, a frame too long or a request out of turn fails the connection (SQLCODE -919, SQLSTATE 08006) | `[PROTOCOL Errors and notices]` | not yet |
+| P-ERRN-6 | A malformed message, a request not granted, a frame too long or a request out of turn fails the connection (SQLCODE -919, SQLSTATE 08006) | `[PROTOCOL Errors and notices]` | done |
+
+### Sample frames
+
+| ID | Row | Citation | Status |
+|---|---|---|---|
+| P-FRAMES-1 | Every line of `05-protocol-frames.tsv`, at a pinned commit, read as the page lays it out: direction, name, needs, hex, means | `[PROTOCOL Sample frames]` | not yet |
+| P-FRAMES-2 | Every server frame decoded to what its meaning says, with the capabilities it needs granted | `[PROTOCOL Sample frames]` | not yet |
+| P-FRAMES-3 | Every client frame the driver can send encoded byte for byte as the file holds it | `[PROTOCOL Sample frames]` | not yet |
+| P-FRAMES-4 | A compressed frame's sample inflated to the frame its meaning names | `[PROTOCOL Sample frames]` | not yet |
 
 ### A worked example
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| P-EXAMPLE-1 | The Hello of `trust` as ANN asking for `ping`, 41 bytes | `[PROTOCOL A worked example]` | not yet |
-| P-EXAMPLE-2 | Ping and Pong, a header alone each | `[PROTOCOL A worked example]` | not yet |
-| P-EXAMPLE-3 | The Query of `VALUES 1` with `ends` set | `[PROTOCOL A worked example]` | not yet |
-| P-EXAMPLE-4 | The Rows reply of the exact number 1 | `[PROTOCOL A worked example]` | not yet |
-| P-EXAMPLE-5 | The Complete with an empty tail, and with `row-counts` its tags 6 and 18 | `[PROTOCOL A worked example]` | not yet |
+| P-EXAMPLE-1 | The Hello of `trust` as ANN asking for `ping`, 41 bytes | `[PROTOCOL A worked example]` | done |
+| P-EXAMPLE-2 | Ping and Pong, a header alone each | `[PROTOCOL A worked example]` | done |
+| P-EXAMPLE-3 | The Query of `VALUES 1` with `ends` set | `[PROTOCOL A worked example]` | done |
+| P-EXAMPLE-4 | The Rows reply of the exact number 1 | `[PROTOCOL A worked example]` | done |
+| P-EXAMPLE-5 | The Complete with an empty tail, and with `row-counts` its tags 6 and 18 | `[PROTOCOL A worked example]` | done |
 
 ---
 
@@ -552,31 +585,32 @@ From `doc/client/02-library.md`, The Client Library.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| C-CONN-1 | Connect over TCP | `[CLIENT Connecting]` | not yet |
-| C-CONN-2 | Connect over a Unix socket, or on Windows the named pipe `\\.\pipe\turborel` | `[CLIENT Connecting]` | not yet |
-| C-CONN-3 | Connect to a target, TCP or local, over TLS or not | `[CLIENT Connecting]` | not yet |
-| C-CONN-4 | SCRAM-SHA-256 of a password, refused (SQLSTATE 08006) unless the server proves it knows the user's verifier | `[CLIENT Connecting]` | not yet |
-| C-CONN-5 | SCRAM only over TLS, a Unix socket or a named pipe, unless the program asks for it in the clear | `[CLIENT Connecting]` | not yet |
-| C-CONN-6 | SCRAM-SHA-256-PLUS over TLS: by `tls-exporter` over TLS 1.3, by the server's certificate over TLS 1.2 | `[CLIENT Connecting]` | not yet |
-| C-CONN-7 | A TLS stream the program opened, bound before SCRAM-SHA-256-PLUS | `[CLIENT Connecting]` | not yet |
-| C-CONN-8 | `password`, sent whole, only over TLS, a Unix socket or a named pipe | `[CLIENT Connecting]` | not yet |
-| C-CONN-9 | `certificate`: TLS trusting a PEM file of authorities, presenting a certificate chain and key from two more | `[CLIENT Connecting]` | not yet |
-| C-CONN-10 | `trust` | `[CLIENT Connecting]` | not yet |
-| C-CONN-11 | A password, or SCRAM, refused over plain TCP before connecting (SQLSTATE 28000) | `[CLIENT Connecting]` | not yet |
-| C-CONN-12 | TLS trusting a file's authorities, the platform's, or both; SSL_CERT_FILE and SSL_CERT_DIR | `[CLIENT Connecting]` | not yet |
-| C-CONN-13 | The server's product and the session's authorization identifier, as Ready told them | `[CLIENT Connecting]` | not yet |
-| C-CONN-14 | Terminate: the transaction as SESSION.COMMIT_AT_END says, a failing commit's failure given, waiting at most the read timeout, else 60 seconds | `[CLIENT Connecting]` | not yet |
+| C-CONN-1 | Connect over TCP | `[CLIENT Connecting]` | done |
+| C-CONN-2 | Connect over a Unix socket, or on Windows the named pipe `\\.\pipe\turborel` | `[CLIENT Connecting]` | done |
+| C-CONN-3 | Connect to a target, TCP or local, over TLS or not | `[CLIENT Connecting]` | done |
+| C-CONN-4 | SCRAM-SHA-256 of a password, refused (SQLSTATE 08006) unless the server proves it knows the user's verifier | `[CLIENT Connecting]` | done |
+| C-CONN-5 | SCRAM only over TLS, a Unix socket or a named pipe, unless the program asks for it in the clear | `[CLIENT Connecting]` | done |
+| C-CONN-6 | SCRAM-SHA-256-PLUS over TLS: by `tls-exporter` over TLS 1.3, by the server's certificate over TLS 1.2 | `[CLIENT Connecting]` | done |
+| C-CONN-7 | A TLS stream the program opened, bound before SCRAM-SHA-256-PLUS | `[CLIENT Connecting]` | done |
+| C-CONN-8 | `password`, sent whole, only over TLS, a Unix socket or a named pipe | `[CLIENT Connecting]` | done |
+| C-CONN-9 | `certificate`: TLS trusting a PEM file of authorities, presenting a certificate chain and key from two more | `[CLIENT Connecting]` | done |
+| C-CONN-10 | `trust` | `[CLIENT Connecting]` | done |
+| C-CONN-11 | A password, or SCRAM, refused over plain TCP before connecting (SQLSTATE 28000) | `[CLIENT Connecting]` | done |
+| C-CONN-12 | TLS trusting a file's authorities, the platform's, or both; SSL_CERT_FILE and SSL_CERT_DIR | `[CLIENT Connecting]` | done |
+| C-CONN-13 | The server's product and the session's authorization identifier, as Ready told them | `[CLIENT Connecting]` | done |
+| C-CONN-14 | Terminate: the transaction as SESSION.COMMIT_AT_END says, a failing commit's failure given, a Notice or Status before it read past; on a stream that bounds itself waiting at most the read timeout, else 60 seconds; on a stream given to `open`, as its maker set it | `[CLIENT Connecting]` | done |
 
 ### Timeouts
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| C-TIME-1 | The connect timeout, for connecting, TLS and each step of the login: 30 seconds by default | `[CLIENT Timeouts]` | not yet |
-| C-TIME-2 | The read timeout, for each read or write after: none by default | `[CLIENT Timeouts]` | not yet |
-| C-TIME-3 | Timeouts of the program's own, and a connection's read timeout changed | `[CLIENT Timeouts]` | not yet |
-| C-TIME-4 | A wait that runs out loses the connection (SQLSTATE 08006), saying the server did not answer in time | `[CLIENT Timeouts]` | not yet |
-| C-TIME-5 | A named pipe bounded only as it is opened | `[CLIENT Timeouts]` | not yet |
-| C-TIME-6 | Replies taken up to 16 MiB, or as many bytes as the program says; a longer one loses the connection | `[CLIENT Timeouts]` | not yet |
+| C-TIME-1 | The connect timeout, for connecting, TLS and each step of the login: 30 seconds by default | `[CLIENT Timeouts]` | done |
+| C-TIME-2 | The read timeout, for each read or write after: none by default | `[CLIENT Timeouts]` | done |
+| C-TIME-3 | Timeouts of the program's own, and a connection's read timeout changed | `[CLIENT Timeouts]` | done |
+| C-TIME-4 | A wait that runs out loses the connection (SQLSTATE 08006), saying the server did not answer in time | `[CLIENT Timeouts]` | done |
+| C-TIME-5 | A named pipe bounded only as it is opened | `[CLIENT Timeouts]` | done |
+| C-TIME-6 | Replies taken up to 16 MiB, or as many bytes as the program says; a longer one loses the connection | `[CLIENT Timeouts]` | done |
+| C-TIME-7 | A stream of the program's own that bounds itself, opened within Timeouts, bounded as they say, its read timeout settable as a connection's | `[CLIENT Timeouts]` | done |
 
 ### Running statements
 
@@ -587,9 +621,10 @@ From `doc/client/02-library.md`, The Client Library.
 | C-RUN-3 | A query's rows given a batch at a time, as they come | `[CLIENT Running statements]` | not yet |
 | C-RUN-4 | Every value: exact, approximate, character, binary, datetime, interval, a plug-in's, null | `[CLIENT Running statements]` | not yet |
 | C-RUN-5 | Whether the session's transaction is active, as the server said after the last statement | `[CLIENT Running statements]` | not yet |
-| C-RUN-6 | Cancel from another thread, giving up after 10 seconds, or a limit of the program's | `[CLIENT Running statements]` | not yet |
+| C-RUN-6 | Cancel from another thread, giving up after 10 seconds, or a limit of the program's | `[CLIENT Running statements]` | done |
 | C-RUN-7 | A transaction begun by the first statement, lasting until COMMIT or ROLLBACK | `[CLIENT Running statements]` | not yet |
 | C-RUN-8 | Autocommit: each statement its own transaction, by `ends`, with no COMMIT sent | `[CLIENT Running statements]` | not yet |
+| C-RUN-9 | A reply holding a value the client cannot take fails its statement with that value's error (SQLCODE -916, or another not of class 08); the connection goes on, the rest of the statement's replies read past first | `[CLIENT Running statements]` | not yet |
 
 ### Prepared statements
 
@@ -601,6 +636,7 @@ From `doc/client/02-library.md`, The Client Library.
 | C-PREP-4 | Open a cursor and take its first rows, fetch the next batch, close it | `[CLIENT Prepared statements]` | not yet |
 | C-PREP-5 | Deallocate | `[CLIENT Prepared statements]` | not yet |
 | C-PREP-6 | A prepared statement valid across transactions | `[CLIENT Prepared statements]` | not yet |
+| C-PREP-7 | A column's declared type, its name and as SQL writes it, granted `declared-types`, which connecting asks for; the type written gives the declared type where told, else the type its tag says | `[CLIENT Prepared statements]` | not yet |
 
 ### Large objects
 
@@ -648,16 +684,16 @@ From `doc/client/02-library.md`, The Client Library.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| C-ASK-1 | Every capability but compression asked for by default | `[CLIENT What a connection asks for]` | not yet |
-| C-ASK-2 | An offer of the program's own: none, compression, connection attributes | `[CLIENT What a connection asks for]` | not yet |
-| C-ASK-3 | What was granted | `[CLIENT What a connection asks for]` | not yet |
-| C-ASK-4 | A method needing a capability not granted fails before it sends anything | `[CLIENT What a connection asks for]` | not yet |
+| C-ASK-1 | Every capability but compression asked for by default | `[CLIENT What a connection asks for]` | done |
+| C-ASK-2 | An offer of the program's own: none, compression, connection attributes | `[CLIENT What a connection asks for]` | done |
+| C-ASK-3 | What was granted | `[CLIENT What a connection asks for]` | done |
+| C-ASK-4 | A method needing a capability not granted fails before it sends anything | `[CLIENT What a connection asks for]` | done |
 
 ### What the server tells
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| C-TOLD-1 | A session setting as the server last told it, and all of them, with no round trip | `[CLIENT What the server tells]` | not yet |
+| C-TOLD-1 | A session setting as the server last told it, and all of them, with no round trip | `[CLIENT What the server tells]` | done |
 | C-TOLD-2 | Notices given to a handler as they come; with none, the last 64 kept and taken | `[CLIENT What the server tells]` | not yet |
 | C-TOLD-3 | The last statement's conditions, with `conditions` | `[CLIENT What the server tells]` | not yet |
 | C-TOLD-4 | The rows a statement changed, or a query returned | `[CLIENT What the server tells]` | not yet |
@@ -834,14 +870,14 @@ From `doc/client/02-library-connections.md`, Settings, Pipelines and Pools.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| C-KEY-1 | The keys a password derived kept after a login the server proved, a later login of the same salt and iterations skipping the derivation | `[CLIENT The SCRAM key cache]` | not yet |
+| C-KEY-1 | The keys a password derived kept after a login the server proved, a later login of the same salt and iterations skipping the derivation | `[CLIENT The SCRAM key cache]` | done |
 | C-KEY-2 | One cache for every connection the same settings make | `[CLIENT The SCRAM key cache]` | not yet |
-| C-KEY-3 | A cache given to a mechanism the program makes | `[CLIENT The SCRAM key cache]` | not yet |
-| C-KEY-4 | Its hits and misses | `[CLIENT The SCRAM key cache]` | not yet |
-| C-KEY-5 | An entry found by the salt, the iterations and a tag of the password under a random secret of the cache's own | `[CLIENT The SCRAM key cache]` | not yet |
-| C-KEY-6 | At most 64 entries, the oldest dropped first | `[CLIENT The SCRAM key cache]` | not yet |
-| C-KEY-7 | An entry dropped when a login that used it fails | `[CLIENT The SCRAM key cache]` | not yet |
-| C-KEY-8 | Held in the process's memory alone | `[CLIENT The SCRAM key cache]` | not yet |
+| C-KEY-3 | A cache given to a mechanism the program makes | `[CLIENT The SCRAM key cache]` | done |
+| C-KEY-4 | Its hits and misses | `[CLIENT The SCRAM key cache]` | done |
+| C-KEY-5 | An entry found by the salt, the iterations and a tag of the password under a random secret of the cache's own | `[CLIENT The SCRAM key cache]` | done |
+| C-KEY-6 | At most 64 entries, the oldest dropped first | `[CLIENT The SCRAM key cache]` | done |
+| C-KEY-7 | An entry dropped when a login that used it fails | `[CLIENT The SCRAM key cache]` | done |
+| C-KEY-8 | Held in the process's memory alone | `[CLIENT The SCRAM key cache]` | done |
 
 ---
 
@@ -853,11 +889,11 @@ later decision of RULES.md.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| S-API-1 | `turborel::connection`, an owner of turborel-c's connection, opened by a URI or settings, closed by its destructor | `[DESIGN] D2` | not yet |
-| S-API-2 | Statements and prepared statements, with parameters bound from C++ values | `[DESIGN] D2` | not yet |
-| S-API-3 | A query's rows as a `std::ranges::input_range`, read as they come, each value read as its C++ type | `[DESIGN] D2` | not yet |
-| S-API-4 | Datetimes as `std::chrono` types, and intervals as `std::chrono` durations where they fit | `[DESIGN] D2` | not yet |
-| S-API-5 | Exact numbers as the driver's decimal type, every units and scale the protocol carries | `[DESIGN] D2` | not yet |
-| S-API-6 | Every failure thrown as `turborel::error`, a `std::runtime_error` carrying the whole failure | `[DESIGN] D10` | not yet |
+| S-API-1 | `turborel::connection`, an owner of turborel-c's connection, opened by a target, a URI or settings, closed by its destructor; every handle of turborel-c owned, movable and not copyable | `[DESIGN] D2` | not yet |
+| S-API-2 | Statements and prepared statements, with parameters bound from C++ values, `std::optional` the null value | `[DESIGN] D2` | not yet |
+| S-API-3 | A query's rows as a range: a result a `std::ranges::random_access_range`, a cursor a `std::ranges::input_range` read as its batches come, each value read as its C++ type | `[DESIGN] D2` | not yet |
+| S-API-4 | Datetimes as `std::chrono` types, and intervals as `std::chrono` durations where they fit | `[DESIGN] D16` | not yet |
+| S-API-5 | Exact numbers as the driver's decimal type, every units and scale the protocol carries | `[DESIGN] D16` | not yet |
+| S-API-6 | Every failure thrown as `turborel::error`, a `std::runtime_error` carrying the whole failure; memory not had as `std::bad_alloc` | `[DESIGN] D10` | not yet |
 | S-API-7 | `std::span` and `std::string_view` at the boundaries | `[DESIGN] D2` | not yet |
-| S-API-8 | The CMake package `turborel-cpp` and its target `turborel::turborel-cpp`, found installed or built from source | `[DESIGN] D9` | done |
+| S-API-8 | The CMake package `turborel-cpp` and its target `turborel::turborel-cpp`, found installed or built from source, turborel-c found or fetched with it | `[DESIGN] D9` | not yet |

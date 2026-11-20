@@ -523,7 +523,10 @@ failures asks, the driver says it itself:
 - turborel-c refuses JSON text nesting past 128 arrays and objects as it
   refuses text no JSON value is, TRL_INVALID_TEXT. The driver tells the
   first by its nesting, as the shared table asks: SQLCODE -900, SQLSTATE
-  0A000, refused before sending; the second is 22018 (`src/params.cpp`).
+  0A000, refused before sending; the second is 22032, as turborel-c names
+  JSON text that is not valid, as it does a JSON value no JSON text
+  writes, which `value::json()` gives likewise (`src/params.cpp`,
+  `src/value.cpp`).
 
 ### This driver's own
 
@@ -718,7 +721,8 @@ proxy, by the server's own certificate, are OpenSSL's too
 library turborel-c uses where it has one; found by CMake, nothing
 installed links it. Without it, or where turborel-c was built with no TLS
 library, as of an OpenSSL older than it takes, the TLS and SCRAM tests
-are skipped, saying why.
+are skipped, saying why; where it was built without zlib, as on Windows,
+the tests of compressed frames are skipped so.
 
 #### D18. The sample frames are a copy, pinned at a Turborel commit
 

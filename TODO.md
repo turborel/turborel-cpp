@@ -9,58 +9,16 @@ in [RULES.md](RULES.md).
 
 Code never cites this file (R-DOC-5).
 
-[M1 Codec](#m1-codec) · [M2 Connect](#m2-connect) ·
-[M3 Statements](#m3-statements) ·
-[M4 Large objects and bulk](#m4-large-objects-and-bulk) ·
-[M5 Settings](#m5-settings) · [M6 Throughput](#m6-throughput) ·
-[M7 Standard API](#m7-standard-api) · [M8 Parity audit](#m8-parity-audit)
+[M3 Statements](#m3-statements) · [M4 Large objects and bulk](#m4-large-objects-and-bulk) · [M5 Settings](#m5-settings) · [M6 Throughput](#m6-throughput) · [M7 Standard API](#m7-standard-api) · [M8 Parity audit](#m8-parity-audit)
 
 ---
-
-## M1 Codec
-
-Every message encoded and decoded, with no I/O, each with its codec
-tests.
-
-- Frames, fields and compression: the P-FRAME, P-ZFRAME and P-FIELD
-  rows.
-- The data types and values, tested at their edges: the P-TYPE, P-VAL
-  and P-JSON rows but P-VAL-102 and P-VAL-103, and the P-COMP rows.
-- The tail: the P-TAIL rows.
-- The messages whose rows are their fields alone: P-HELLO-1,
-  P-ANSWER-1, P-QUERY-1, P-EXEC-1, P-COPYIN-1, P-COPYDATA-1, P-CHAL-1,
-  P-READY-1, P-PREPD-1, P-DESCR-1, P-ROWS-1, P-SUSP-1, P-COMPL-1,
-  P-ERROR-1, P-NOTICE-1, P-STATUS-1, P-PONG-1, and the P-LOBR rows. The
-  other requests' fields are encoded here too, and their rows, which say
-  how the server answers, are done in the milestone that names them.
-- The worked example, byte for byte, and malformed frames that must fail
-  the connection: the P-EXAMPLE rows and P-ERRN-6.
-- The manual: Appendix A and the API Reference's page of values.
-
-## M2 Connect
-
-- Transport: P-INTRO-1 to P-INTRO-3, C-CONN-1 to C-CONN-3, and the
-  C-TIME rows.
-- Logging in: the P-OPEN and P-MECH rows, P-INTRO-4, P-HELLO-2,
-  P-READY-2, P-ERROR-2, C-CONN-4, C-CONN-5, C-CONN-8, C-CONN-10,
-  C-CONN-11 and C-CONN-13.
-- TLS: C-CONN-6, C-CONN-7, C-CONN-9 and C-CONN-12, by the language's
-  own TLS.
-- Capabilities and status: P-CAP-2, P-CAP-10, P-CAP-12, P-CAP-19,
-  P-STATUS-2 to P-STATUS-10, the C-ASK rows and C-TOLD-1.
-- The SCRAM key cache: C-KEY-1 and C-KEY-3 to C-KEY-8.
-- Ending: P-CANCEL-1, P-CANCEL-2, P-TERM-1, C-CONN-14 and C-RUN-6.
-- The live tests' server set-up, with test certificates, SCRAM users and
-  SERVER.TRUST_LOCAL, on `ghcr.io/turborel/turborel:nightly` in CI
-  (R-TEST-8).
-- The manual: the User's Guide's chapter Connecting and the API
-  Reference's page of connections.
 
 ## M3 Statements
 
 - Queries and prepared statements: P-REQ-2, P-QUERY-2 to P-QUERY-6,
-  P-EXEC-2 to P-EXEC-4, the P-PREP, P-FETCH, P-CLOSE, P-DEALLOC and
-  P-DESC rows, the C-RUN rows but C-RUN-6, and the C-PREP rows.
+  P-EXEC-2 to P-EXEC-5, P-PREPD-2, the P-PREP, P-FETCH, P-CLOSE, P-DEALLOC and
+  P-DESC rows, P-FIELD-10, the C-RUN rows but C-RUN-6, and the C-PREP rows,
+  C-PREP-7 among them.
 - Completions, failures, notices and conditions: P-COMPL-2 to
   P-COMPL-6, the P-ERRN rows but P-ERRN-6, and C-TOLD-2 to C-TOLD-9.
 - The session: P-PING-1, the P-RESET and P-CHUSER rows, and the C-CTRL
@@ -113,5 +71,6 @@ tests.
 
 - Every row of CONFORMANCE.md checked against turborel-client and the
   spec, the coverage floor held (RULES.md D7), and this file empty.
-- Once Turborel keeps a file of sample frames beside the spec, every
-  frame of it decoded, at a pinned commit.
+- The sample frames: P-FRAMES-1 to P-FRAMES-4, every frame of
+  `doc/client/05-protocol-frames.tsv` decoded or encoded as it says, at a
+  pinned commit of Turborel.
