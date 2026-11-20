@@ -3,32 +3,41 @@ include_guard(GLOBAL)
 
 include(FetchContent)
 
-# turborel-c, the C driver this one wraps (RULES.md D11). Its installed
-# CMake package is found first, as vcpkg, Conan or `cmake --install` leave
-# it; failing that, its pinned commit is fetched.
-set(TURBOREL_CPP_C_REPOSITORY
-    "https://github.com/turborel/turborel-c.git"
-    CACHE STRING "Where turborel-c is fetched from (RULES.md D11)")
-set(TURBOREL_CPP_C_COMMIT
-    ""
-    CACHE STRING "The full commit of turborel-c fetched (RULES.md D11)")
+# turborel-c, the C driver this one wraps (RULES.md D1, D11): its CMake
+# package `turborel`, target turborel::turborel. An installed package of
+# the same release is found first, as `cmake --install`, vcpkg or Conan
+# leave it; failing that, the pinned commit is fetched and built with the
+# driver. The pin is no cache variable, so a build made before it moved
+# takes the new one; a checkout of turborel-c's own is built instead by
+# CMake's FETCHCONTENT_SOURCE_DIR_TURBOREL.
+set(TURBOREL_CPP_C_REPOSITORY "https://github.com/turborel/turborel-c.git")
+set(TURBOREL_CPP_C_COMMIT "01b3c3089ce7a5653c918995cb53872b098e74f3")
 
-# Links `target` to turborel-c, when the driver is built against it.
+# Links `target` to turborel-c.
 function(turborel_cpp_link_c target)
-  if(NOT TURBOREL_CPP_WITH_C)
-    return()
-  endif()
-  if(TURBOREL_CPP_C_COMMIT STREQUAL "")
-    find_package(turborel-c ${PROJECT_VERSION} EXACT CONFIG REQUIRED)
-  else()
-    FetchContent_Declare(
-      turborel-c
-      GIT_REPOSITORY "${TURBOREL_CPP_C_REPOSITORY}"
-      GIT_TAG "${TURBOREL_CPP_C_COMMIT}"
-      SYSTEM FIND_PACKAGE_ARGS ${PROJECT_VERSION} EXACT CONFIG)
-    FetchContent_MakeAvailable(turborel-c)
-  endif()
-  target_link_libraries(${target} PUBLIC turborel::turborel-c)
+  FetchContent_Declare(
+    turborel
+    GIT_REPOSITORY "${TURBOREL_CPP_C_REPOSITORY}"
+    GIT_TAG "${TURBOREL_CPP_C_COMMIT}"
+    SYSTEM FIND_PACKAGE_ARGS ${PROJECT_VERSION} EXACT CONFIG)
+  # turborel-c builds a shared library unless told; fetched, it is built
+  # static, into the driver, as this one is by default. Set here, in the
+  # function's scope, so the driver's own BUILD_SHARED_LIBS is unchanged.
+  set(BUILD_SHARED_LIBS OFF)
+  # Its ODBC driver is a library of its own, which this driver does not
+  # wrap.
+  set(TRL_ODBC OFF)
+  # Its build that lets a test fail any of its allocations, for the tests'
+  # faults alone (RULES.md D14).
+  set(TRL_FAULTS ${TURBOREL_CPP_FAULTS})
+  FetchContent_MakeAvailable(turborel)
+  foreach(c_target IN ITEMS turborel turborel_objects)
+    if(TARGET ${c_target})
+      # Not ours: built with its own warnings, which never fail our build.
+      set_target_properties(${c_target} PROPERTIES COMPILE_WARNING_AS_ERROR OFF)
+    endif()
+  endforeach()
+  target_link_libraries(${target} PUBLIC turborel::turborel)
 endfunction()
 
 # Catch2, the tests' framework (RULES.md D12), at a pinned release whose

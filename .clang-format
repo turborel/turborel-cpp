@@ -16,5 +16,7 @@ FixNamespaceComments: true
 IncludeBlocks: Preserve
 InsertBraces: true
 InsertNewlineAtEOF: true
+# A NOLINT comment is one line, as clang-tidy reads it (R-LINT-3).
+CommentPragmas: '^ NOLINT'
 SortIncludes: CaseSensitive
 ...

@@ -36,7 +36,7 @@ row, and [TODO.md](TODO.md) what is open.
 ## Requirements
 
 - a C++20 compiler, GCC 13, Clang 18, Apple Clang or MSVC 19.40 or later, and CMake 3.25 or later, on Linux, macOS or Windows ([RULES.md](RULES.md) D3).
-- turborel-c, of the same Turborel release, which brings the TLS library and zlib it needs; the driver is built against it from its milestone M3 on ([RULES.md](RULES.md) D11).
+- turborel-c, of the same Turborel release, which brings the TLS library and zlib it needs: found installed, or fetched at a pinned commit and built with the driver ([RULES.md](RULES.md) D11).
 - A Turborel server of the same release, which speaks protocol version 1
   ([running the server](https://github.com/turborel/turborel/blob/main/doc/operator/02-turboreld.md)).
 

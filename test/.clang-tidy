@@ -8,7 +8,10 @@ Checks: >
   -readability-function-cognitive-complexity,
   -cert-err58-cpp,
   -cppcoreguidelines-avoid-non-const-global-variables,
-  -misc-use-anonymous-namespace
+  -misc-use-anonymous-namespace,
+  -bugprone-unchecked-optional-access,
+  -cppcoreguidelines-macro-usage,
+  -clang-analyzer-optin.core.EnumCastOutOfRange
 # readability-magic-numbers: tests use literal fixtures (R-CONST-5).
 # cppcoreguidelines-avoid-do-while, readability-function-cognitive-
 #   complexity: Catch2's assertion macros expand to do-while loops and
@@ -16,4 +19,14 @@ Checks: >
 # cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables,
 #   misc-use-anonymous-namespace: TEST_CASE registers each test by a
 #   static object Catch2's macro defines.
+# bugprone-unchecked-optional-access: Catch2's REQUIRE checks an optional
+#   before the test reads it, which the check cannot see through the macro.
+# cppcoreguidelines-macro-usage: LIVE_OR_SKIP and CERTIFIED_OR_SKIP call
+#   Catch2's SKIP, a macro, where the test is.
+# clang-analyzer-optin.core.EnumCastOutOfRange: Catch2's own flags, in
+#   its headers, combined as it means them.
+CheckOptions:
+  # The platform's own headers, which declare what POSIX's do and differ
+  # from one system to the next (RULES.md D13).
+  misc-include-cleaner.IgnoreHeaders: '.*/__chrono/.*;.*/__type_traits/.*;.*/bits/.*;.*/sys/_.*;.*/_stdlib\.h;.*/sys/signal\.h;.*/sys/poll\.h;.*/sys/fcntl\.h;.*/asm-generic/.*;.*/linux/.*'
 ...

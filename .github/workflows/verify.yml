@@ -26,8 +26,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-24.04
-            cxx: clang++-18
+          - os: ubuntu-latest
+            cxx: clang++
           - os: macos-latest
             cxx: clang++
     runs-on: ${{ matrix.os }}
@@ -50,6 +50,16 @@ jobs:
       - name: Install Doxygen
         if: runner.os == 'macOS'
         run: brew install doxygen
+      # The live tests run against the nightly server's image (R-TEST-8),
+      # its turboreld started by the tests themselves, on the host's
+      # network, as the runner's user, the workspace its files' directory.
+      # macOS and Windows have no turboreld to run, so there the live tests
+      # are skipped.
+      - name: The nightly server, for the live tests
+        if: runner.os == 'Linux'
+        run: |
+          docker pull ghcr.io/turborel/turborel:nightly
+          echo "TURBOREL_CPP_TEST_SERVER=docker run --rm -i --network host --user $(id -u):$(id -g) -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} ghcr.io/turborel/turborel:nightly" >> "$GITHUB_ENV"
       - name: Configure
         run: cmake --preset verify -DTURBOREL_CPP_REQUIRE_DOXYGEN=ON
       - name: Build, with clang-tidy
@@ -58,7 +68,9 @@ jobs:
         run: ctest --preset verify
 
   # The build and tests with each supported compiler (D3), warnings as
-  # errors, in Debug and Release.
+  # errors, in Debug and Release. Ubuntu 24.04's OpenSSL is older than
+  # turborel-c takes, so there it is built with no TLS library and the
+  # TLS and SCRAM tests are skipped; the current Ubuntu's runs them.
   build:
     strategy:
       fail-fast: false
@@ -68,6 +80,8 @@ jobs:
           - { os: ubuntu-24.04, cxx: g++-13 }
           - { os: ubuntu-24.04, cxx: g++-14 }
           - { os: ubuntu-24.04, cxx: clang++-18 }
+          - { os: ubuntu-latest, cxx: g++ }
+          - { os: ubuntu-latest, cxx: clang++ }
           - { os: macos-latest, cxx: clang++ }
           - { os: windows-latest, cxx: cl }
     runs-on: ${{ matrix.toolchain.os }}
@@ -79,6 +93,16 @@ jobs:
       # which show on the commit and can be read without the logs.
       - name: Report failures as annotations
         run: echo "::add-matcher::.github/problem-matchers.json"
+      # The live tests run against the nightly server's image (R-TEST-8),
+      # its turboreld started by the tests themselves, on the host's
+      # network, as the runner's user, the workspace its files' directory.
+      # macOS and Windows have no turboreld to run, so there the live tests
+      # are skipped.
+      - name: The nightly server, for the live tests
+        if: runner.os == 'Linux'
+        run: |
+          docker pull ghcr.io/turborel/turborel:nightly
+          echo "TURBOREL_CPP_TEST_SERVER=docker run --rm -i --network host --user $(id -u):$(id -g) -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} ghcr.io/turborel/turborel:nightly" >> "$GITHUB_ENV"
       - name: Build and test
         run: cmake --workflow --preset ${{ matrix.preset }}
 
@@ -87,8 +111,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: ubuntu-24.04, cxx: g++-14 }
-          - { os: ubuntu-24.04, cxx: clang++-18 }
+          - { os: ubuntu-latest, cxx: g++ }
+          - { os: ubuntu-latest, cxx: clang++ }
           - { os: macos-latest, cxx: clang++ }
     runs-on: ${{ matrix.os }}
     env:
@@ -104,18 +128,40 @@ jobs:
       - name: Fewer bits of address randomization
         if: runner.os == 'Linux'
         run: sudo sysctl vm.mmap_rnd_bits=28
+      # The live tests run against the nightly server's image (R-TEST-8),
+      # its turboreld started by the tests themselves, on the host's
+      # network, as the runner's user, the workspace its files' directory.
+      # macOS and Windows have no turboreld to run, so there the live tests
+      # are skipped.
+      - name: The nightly server, for the live tests
+        if: runner.os == 'Linux'
+        run: |
+          docker pull ghcr.io/turborel/turborel:nightly
+          echo "TURBOREL_CPP_TEST_SERVER=docker run --rm -i --network host --user $(id -u):$(id -g) -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} ghcr.io/turborel/turborel:nightly" >> "$GITHUB_ENV"
       - name: Tests under AddressSanitizer and UndefinedBehaviorSanitizer
         run: cmake --workflow --preset asan-ubsan
 
   coverage:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     env:
-      CXX: clang++-18
+      CXX: clang++
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # Compiler, linker, CMake, Catch2 and CTest failures become annotations,
       # which show on the commit and can be read without the logs.
       - name: Report failures as annotations
         run: echo "::add-matcher::.github/problem-matchers.json"
+      # The live tests run against the nightly server's image (R-TEST-8),
+      # its turboreld started by the tests themselves, on the host's
+      # network, as the runner's user, the workspace its files' directory.
+      # macOS and Windows have no turboreld to run, so there the live tests
+      # are skipped.
+      - name: The nightly server, for the live tests
+        if: runner.os == 'Linux'
+        run: |
+          docker pull ghcr.io/turborel/turborel:nightly
+          echo "TURBOREL_CPP_TEST_SERVER=docker run --rm -i --network host --user $(id -u):$(id -g) -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} ghcr.io/turborel/turborel:nightly" >> "$GITHUB_ENV"
+      # The floor holds over the live tests too, so coverage is measured
+      # where the server runs.
       - name: Coverage against its floors
         run: cmake --workflow --preset coverage

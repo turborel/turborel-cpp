@@ -22,7 +22,8 @@
       "description": "Debug build, tests and the source rules",
       "inherits": "base",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TURBOREL_CPP_FAULTS": "ON"
       }
     },
     {
@@ -41,7 +42,8 @@
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "TURBOREL_CPP_SANITIZE": "ON"
+        "TURBOREL_CPP_SANITIZE": "ON",
+        "TURBOREL_CPP_FAULTS": "ON"
       }
     },
     {
@@ -51,7 +53,8 @@
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "TURBOREL_CPP_COVERAGE": "ON"
+        "TURBOREL_CPP_COVERAGE": "ON",
+        "TURBOREL_CPP_FAULTS": "ON"
       }
     },
     {
@@ -61,7 +64,8 @@
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "TURBOREL_CPP_LINT": "ON"
+        "TURBOREL_CPP_LINT": "ON",
+        "TURBOREL_CPP_FAULTS": "ON"
       }
     }
   ],

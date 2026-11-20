@@ -53,12 +53,14 @@ Each is told in full in [§7](#7-the-decisions).
 | **This driver's own** | |
 | D9 | Built by CMake 3.25 or later, and installed as the CMake package `turborel-cpp` |
 | D10 | Every failure is a `turborel::error`, a `std::runtime_error` |
-| D11 | turborel-c is found installed, or fetched at a pinned commit, and is off until its M3 |
+| D11 | turborel-c is found installed, or fetched at a pinned commit |
 | D12 | Tests in Catch2 3, fetched at a pinned release |
 | D13 | clang-format and clang-tidy of LLVM 23, and Doxygen, check what the compiler does not |
-| D14 | The tests run under AddressSanitizer and UndefinedBehaviorSanitizer |
-| D15 | No codec tests here: the codec and its tests are turborel-c's |
+| D14 | The tests run under AddressSanitizer and UndefinedBehaviorSanitizer, and fail turborel-c's allocations |
+| D15 | No codec here: the protocol is tested through turborel-c's API |
 | D16 | Values in C++ types of the driver's own, each mapped to the protocol's fields |
+| D17 | The live tests start turboreld themselves, with certificates OpenSSL makes |
+| D18 | The sample frames are a copy, pinned at a Turborel commit |
 
 ---
 
@@ -67,8 +69,10 @@ Each is told in full in [§7](#7-the-decisions).
 | Path | What |
 |---|---|
 | `include/turborel/` | the public headers, the `api` layer; `turborel.hpp` includes the rest |
-| `src/` | the library's sources, one per header; every other layer of D1 is turborel-c's, wrapped here from its M3 on |
+| `src/` | the library's sources, one per header, and `capi.hpp`, the boundary with turborel-c; every other layer of D1 is turborel-c's, wrapped here |
 | `test/` | the tests, one Catch2 binary, a source per area (D12) |
+| `test/support/` | what the tests share: the sample frames and scripted streams, the live server, its certificates, and streams and servers of the tests' own (D17) |
+| `test/fixtures/` | the sample frames, copied from Turborel (D18) |
 | `test/package/` | a program built against the installed package (D9) |
 | `cmake/` | the CMake modules, and the checks `cmake -P` runs: the source rules, the format, coverage and its floor |
 | `CMakeLists.txt`, `CMakePresets.json` | the target, its options, and the presets debug, release, asan-ubsan, coverage and verify |
@@ -307,9 +311,7 @@ protocol serves both drivers, a defect is fixed once, and the two never
 disagree on the wire. The TLS library, OpenSSL or AWS-LC, and zlib come
 with turborel-c, by its own decisions. What this driver adds is the
 `api` layer: owners of turborel-c's handles, exceptions, ranges of
-rows, `std::chrono` datetimes and a decimal type. Until turborel-c's
-API reaches its milestone M3, the driver holds its error type and value
-types alone (D11, D15).
+rows, `std::chrono` datetimes and a decimal type (D11, D15).
 
 #### D2. The language's standard API, over a low-level client of turborel-client's features
 
@@ -358,8 +360,12 @@ The language level is C++20, not C++23, because MSVC's C++23 is not
 complete as of November 2026, and the driver builds with GCC, Clang and
 MSVC alike. C++20 has what D2 needs: concepts, ranges, `std::span` and
 the calendar types of `<chrono>`. The compilers are those CI runs: GCC
-13 and 14 and Clang 18, as Ubuntu 24.04 ships them, and the Apple Clang
-and MSVC of GitHub's current macOS and Windows images. GCC 13 is the
+13 and 14 and Clang 18, as Ubuntu 24.04 ships them, the GCC and Clang of
+GitHub's current Ubuntu image, and the Apple Clang and MSVC of its
+current macOS and Windows images. Ubuntu 24.04's OpenSSL is older than
+turborel-c takes, so there turborel-c is built with no TLS library and
+the TLS and SCRAM tests are skipped (D17); the current Ubuntu's OpenSSL
+runs them, as do the lints, the sanitizers and coverage. GCC 13 is the
 oldest GCC release series still maintained upstream, and Visual Studio
 2022 17.10 (MSVC 19.40) the oldest MSVC supported. CMake 3.25 is the
 first with workflow presets and `SYSTEM` for fetched dependencies, both
@@ -397,8 +403,10 @@ CI runs `verify` on Linux and macOS, where clang-tidy reads the
 compiler's commands; on Windows it builds and tests with MSVC, its
 warnings errors. It builds and tests with GCC 13 and 14, Clang 18,
 Apple Clang and MSVC, in Debug and Release, runs the sanitizers (D14),
-and measures coverage on Linux. Live tests come with M2, once the
-driver connects through turborel-c.
+and measures coverage on Linux. The live tests run on Linux against the
+nightly image (D17); macOS and Windows have no turboreld to run, so
+there they are skipped, and coverage, held at 100 % over them too, is
+measured where they run.
 
 #### D5. The version is the Turborel release's: 0.0.0 in the alpha, speaking protocol 1
 
@@ -467,6 +475,11 @@ rule here, the rule is kept:
   the SQLCODE and SQLSTATE turborel-client gives it (R-ERR-1), so a
   program handles one kind of failure.
 
+- R-ERR-1 lets no error of the language reach a program. Memory not had
+  is the one exception: it is `std::bad_alloc`, as the standard library
+  throws it wherever the driver allocates, and as turborel-c's
+  TRL_NO_MEMORY is thrown (D10), so a C++ program handles it as it
+  always does.
 - The C++ Core Guidelines allow `assert` and contracts that end the
   program on a broken precondition. Library code here never ends the
   process (R-ERR-1): a broken precondition the driver can see is a
@@ -479,6 +492,38 @@ rule here, the rule is kept:
   Turborel driver does (D6).
 - Every Turborel driver's first test encodes a frame header; this one
   has none, since its codec is turborel-c's (D15).
+- R-SAFE-5 allows no module-level mutable state. A pool's connector is
+  the program's, and what it throws is thrown by the get that called it
+  (R-RAII-2); turborel-c calls it on the getting thread, through a
+  context of the pool's, so what it threw is kept in a `thread_local`
+  of `src/pool.cpp`, which the get reads and clears as it returns. It is
+  the one such state, and holds nothing past a get.
+
+Where turborel-client is inconsistent, every Turborel driver decides
+alike, and this driver takes turborel-c's decisions, as it takes its
+codec:
+
+- Value tags 18 and 19 are refused as a value's failure, SQLCODE -916,
+  SQLSTATE TB916, the request failed and the connection kept, where
+  turborel-protocol reads them.
+- Connection attributes past their bounds (32, a name of 64 bytes, a
+  value of 1024) are refused before sending, SQLCODE -919, SQLSTATE
+  08006, the connection kept, where turborel-client sends them and the
+  server fails the connection.
+
+Where turborel-c's API cannot say what the drivers' shared table of
+failures asks, the driver says it itself:
+
+- turborel-c's agent refuses CONNECT of a connection its connector failed
+  to make by that connection's failure, which a C++ connector, throwing
+  `turborel::error`, has no connection to carry. The driver refuses it as
+  turborel-c does: SQLSTATE 08001 of a server not reached, lost or never
+  found (08006 or 08001), else 08004, the server's refusal, SQLCODE -919,
+  citing ISO/IEC 9075:1992 §15.1 GR10, GR11 (`src/agent.cpp`).
+- turborel-c refuses JSON text nesting past 128 arrays and objects as it
+  refuses text no JSON value is, TRL_INVALID_TEXT. The driver tells the
+  first by its nesting, as the shared table asks: SQLCODE -900, SQLSTATE
+  0A000, refused before sending; the second is 22018 (`src/params.cpp`).
 
 ### This driver's own
 
@@ -516,24 +561,53 @@ is held by a `std::shared_ptr<const failure>` its copies share. A failure
 the driver finds itself, such as a closed handle used, is a `turborel::error`
 too, with the SQLSTATE turborel-client gives the same case.
 
-#### D11. turborel-c is found installed, or fetched at a pinned commit, and is off until its M3
+A call of turborel-c that fails gives a status, which `src/capi.cpp`
+throws as the driver's (R-ERR-1):
 
-turborel-c is consumed by CMake (`cmake/TurborelDependencies.cmake`), under
-the option `TURBOREL_CPP_WITH_C`, off until turborel-c reaches its
-milestone M3 and has an API to wrap:
+| turborel-c's status | Thrown |
+|---|---|
+| TRL_FAILED | the failure the handle keeps, every field copied |
+| TRL_NO_MEMORY | `std::bad_alloc`, as C++ gives memory not had |
+| TRL_INVALID_ARGUMENT, or TRL_FAILED of a handle that keeps none | SQLCODE -910, SQLSTATE TB910, a misuse turborel-client has no case for |
+| TRL_INVALID_TEXT | SQLCODE -301, SQLSTATE 22018, text of no value of the type asked for |
+| TRL_OUT_OF_RANGE | SQLCODE -301, SQLSTATE 22003, a value out of the type's range |
 
-- by default, `find_package(turborel-c <version> EXACT CONFIG)` finds an
-  installed package, as `cmake --install`, vcpkg or Conan leave it, at the
+`std::bad_alloc` is the one exception not `turborel::error`: C++'s own
+for memory not had, which the standard library throws as the driver
+works too, so a program catches it once. What the program's own code
+throws in a callback, of a stream, a handler or a connector, is thrown
+as it was (R-RAII-2).
+
+#### D11. turborel-c is found installed, or fetched at a pinned commit
+
+turborel-c is consumed by CMake (`cmake/TurborelDependencies.cmake`), its
+CMake package `turborel` and its target `turborel::turborel`, which the
+library links publicly:
+
+- `find_package(turborel <version> EXACT CONFIG)` finds an installed
+  package first, as `cmake --install`, vcpkg or Conan leave it, at the
   same turborel release (D5);
-- where `TURBOREL_CPP_C_COMMIT` names a full commit, FetchContent fetches
-  turborel-c at that commit, still trying the installed package first.
+- failing that, FetchContent fetches turborel-c at the full commit
+  `TURBOREL_CPP_C_COMMIT` names and builds it with the driver: static,
+  into the library, as the driver is by default, and without its ODBC
+  driver, a library of its own this driver does not wrap; its warnings
+  are its own and never fail the driver's build.
 
 Both, rather than one: package managers and distributions give an
 installed package, and a pinned commit lets the driver build from a clean
 checkout with nothing installed, as CI does. A commit, not a tag, because
-turborel-c has no tags during the alpha and a tag can be moved. Its target
-is taken to be `turborel::turborel-c`, to be confirmed against turborel-c
-when the option is first turned on.
+turborel-c has no tags during the alpha and a tag can be moved; it is no
+cache variable, so a build made before it moved takes the new one, and
+CMake's `FETCHCONTENT_SOURCE_DIR_TURBOREL` builds a checkout of one's own
+instead. The commit is 01b3c308, turborel-c's main with its milestones
+M1 to M8 done. The installed package of the driver finds turborel-c the
+same way (`find_dependency(turborel <version> EXACT CONFIG)`).
+
+Every call of turborel-c goes through `src/capi.hpp`: an owner of each
+handle, freed by its `_free` function (R-RAII-1), and the check that
+turns a status into the driver's error (D10). A callback turborel-c calls,
+of a stream, a handler, a source, a connector, catches what the program's
+code throws and gives it back once the call returns (R-RAII-2).
 
 #### D12. Tests in Catch2 3, fetched at a pinned release
 
@@ -565,19 +639,33 @@ of LLVM 23; another major version formats and lints differently. The build refus
 clang-tidy of another major version. Doxygen is checked wherever it is
 found, and CI requires it (`TURBOREL_CPP_REQUIRE_DOXYGEN`).
 
-#### D14. The tests run under AddressSanitizer and UndefinedBehaviorSanitizer
+#### D14. The tests run under AddressSanitizer and UndefinedBehaviorSanitizer, and fail turborel-c's allocations
 
 The preset `asan-ubsan` builds the library and the tests with both, every
 finding fatal; CI runs it with GCC and Clang on Linux and with Apple Clang
 on macOS. MSVC has AddressSanitizer alone, which the option gives it.
 
-#### D15. No codec test here: the codec and its tests are turborel-c's
+The option `TURBOREL_CPP_FAULTS`, which the presets `debug`, `asan-ubsan`,
+`coverage` and `verify` set and no package ships, builds the turborel-c it
+fetches with its `TRL_FAULTS` (its own RULES.md D14), which lets a test
+fail any of its allocations, and of its TLS library's, on purpose. The
+test of faults fails each allocation of a whole session in turn, through
+turborel-c's own hooks, which no header it installs declares, and checks
+that each fails its call as `std::bad_alloc`, or as the driver's error of
+what it came to, and, under the sanitizers, leaks nothing (R-ERR-4). Of
+an installed turborel-c, which cannot fail them, it is skipped.
 
-Every turborel driver's first test encodes and decodes a frame header per
+#### D15. No codec here: the protocol is tested through turborel-c's API
+
+Every Turborel driver's first test encodes and decodes a frame header per
 `[PROTOCOL Frames]`. This driver has none, since it has no codec (D1):
-turborel-c holds the frames, fields and values, and tests them. The tests
-here start at what the driver adds, its error type first, and test the
-protocol through turborel-c's API once it exists.
+turborel-c holds the frames, fields and values, and tests them, RFC
+7677's SCRAM vector among them (R-TEST-9). The tests here test the
+protocol through turborel-c's API as a program reaches it: frames
+scripted on a stream of the test's own, the sample frames (D18), and the
+live server (D17). CONFORMANCE.md marks the codec's rows done by
+turborel-c where its release marks them done and these tests read them
+through the driver.
 
 #### D16. Values in C++ types of the driver's own, each mapped to the protocol's fields
 
@@ -606,6 +694,40 @@ and reads it, so a value reads the same from every client. These types
 carry values and do no arithmetic. The bytes on the wire stay
 turborel-c's (D1); `int128` alone writes its 16 bytes, as the type
 turborel-c's halves become.
+
+#### D17. The live tests start turboreld themselves, with certificates OpenSSL makes
+
+The live tests (R-TEST-8) run against the turboreld the environment
+variable `TURBOREL_CPP_TEST_SERVER` names, a path of it or a command
+that runs it, as CI's `docker run` of `ghcr.io/turborel/turborel:nightly`;
+without it they are skipped, so the other tests stay deterministic
+(R-TEST-5). `test/support/server.cpp` starts it once for each test's
+process, on port 17439, this driver's own, with a database kept in
+memory, its owner ann, a Unix socket, SERVER.TRUST_LOCAL and
+SERVER.SCRAM_WITHOUT_TLS, gives ann a schema, and stops it by its own
+process ID as the process ends, removing its directory. CTest runs each
+test in a process of its own, under one resource lock, so no two
+servers share the port. Windows runs no turboreld, so there the live
+tests are skipped.
+
+The tests' certificates, an authority, the server's and ann's, and an
+authority the server does not trust, are made by OpenSSL 3 for each run
+(`test/support/certs.cpp`), and the tests' own TLS streams and a TLS 1.2
+proxy, by the server's own certificate, are OpenSSL's too
+(`test/support/sockets.cpp`). OpenSSL is a test dependency alone, the TLS
+library turborel-c uses where it has one; found by CMake, nothing
+installed links it. Without it, or where turborel-c was built with no TLS
+library, as of an OpenSSL older than it takes, the TLS and SCRAM tests
+are skipped, saying why.
+
+#### D18. The sample frames are a copy, pinned at a Turborel commit
+
+`test/fixtures/05-protocol-frames.tsv` is Turborel's
+`doc/client/05-protocol-frames.tsv` copied at 045e42a9, the commit the
+headings (D6) are pinned at. A copy, rather than reading it from a
+checkout of Turborel, so the tests are the same on every machine and in
+CI with no checkout of Turborel at all; a new copy comes in a commit of
+its own that moves the pin.
 
 ---
 

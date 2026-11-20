@@ -3,9 +3,7 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
-if(@TURBOREL_CPP_WITH_C@)
-  find_dependency(turborel-c @PROJECT_VERSION@ EXACT CONFIG)
-endif()
+find_dependency(turborel @PROJECT_VERSION@ EXACT CONFIG)
 
 include("${CMAKE_CURRENT_LIST_DIR}/turborel-cpp-targets.cmake")
 check_required_components(turborel-cpp)

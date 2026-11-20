@@ -10,7 +10,7 @@ project(
   VERSION 0.0.0
   DESCRIPTION "The C++ driver for turborel"
   HOMEPAGE_URL "https://turborel.com/docs/drivers/cpp/"
-  LANGUAGES CXX)
+  LANGUAGES C CXX)
 
 include(CMakeDependentOption)
 include(GNUInstallDirs)
@@ -21,9 +21,7 @@ option(TURBOREL_CPP_LINT "Run clang-tidy as the library builds, and the format, 
 option(TURBOREL_CPP_REQUIRE_DOXYGEN "Fail to configure without Doxygen when linting (RULES.md D13)" OFF)
 option(TURBOREL_CPP_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer (RULES.md D14)" OFF)
 option(TURBOREL_CPP_COVERAGE "Build with Clang's source-based coverage (RULES.md D7)" OFF)
-# Off until turborel-c reaches its milestone M3 and has an API to wrap
-# (RULES.md D11).
-option(TURBOREL_CPP_WITH_C "Build against turborel-c (RULES.md D11)" OFF)
+option(TURBOREL_CPP_FAULTS "Build turborel-c, where fetched, so the tests may fail its allocations; never shipped (RULES.md D14)" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(TurborelWarnings)
@@ -35,13 +33,29 @@ add_library(turborel::turborel-cpp ALIAS turborel-cpp)
 
 target_sources(
   turborel-cpp
-  PRIVATE src/data_error.cpp
+  PRIVATE src/agent.cpp
+          src/capi.cpp
+          src/connect.cpp
+          src/connection.cpp
+          src/copy.cpp
+          src/cursor.cpp
+          src/data_error.cpp
           src/datetime.cpp
           src/decimal.cpp
           src/error.cpp
+          src/import.cpp
           src/int128.cpp
           src/interval.cpp
-          src/uuid.cpp)
+          src/lobs.cpp
+          src/params.cpp
+          src/pipeline.cpp
+          src/pool.cpp
+          src/result.cpp
+          src/settings.cpp
+          src/statements.cpp
+          src/uuid.cpp
+          src/value.cpp
+          src/xml.cpp)
 target_compile_features(turborel-cpp PUBLIC cxx_std_20)
 target_include_directories(
   turborel-cpp PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
