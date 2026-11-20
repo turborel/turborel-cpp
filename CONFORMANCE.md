@@ -889,11 +889,11 @@ later decision of RULES.md.
 
 | ID | Row | Citation | Status |
 |---|---|---|---|
-| S-API-1 | `turborel::connection`, an owner of turborel-c's connection, opened by a target, a URI or settings, closed by its destructor; every handle of turborel-c owned, movable and not copyable | `[DESIGN] D2` | not yet |
-| S-API-2 | Statements and prepared statements, with parameters bound from C++ values, `std::optional` the null value | `[DESIGN] D2` | not yet |
-| S-API-3 | A query's rows as a range: a result a `std::ranges::random_access_range`, a cursor a `std::ranges::input_range` read as its batches come, each value read as its C++ type | `[DESIGN] D2` | not yet |
-| S-API-4 | Datetimes as `std::chrono` types, and intervals as `std::chrono` durations where they fit | `[DESIGN] D16` | not yet |
-| S-API-5 | Exact numbers as the driver's decimal type, every units and scale the protocol carries | `[DESIGN] D16` | not yet |
-| S-API-6 | Every failure thrown as `turborel::error`, a `std::runtime_error` carrying the whole failure; memory not had as `std::bad_alloc` | `[DESIGN] D10` | not yet |
-| S-API-7 | `std::span` and `std::string_view` at the boundaries | `[DESIGN] D2` | not yet |
-| S-API-8 | The CMake package `turborel-cpp` and its target `turborel::turborel-cpp`, found installed or built from source, turborel-c found or fetched with it | `[DESIGN] D9` | not yet |
+| S-API-1 | `turborel::connection`, an owner of turborel-c's connection, opened by a target, a URI or settings, closed by its destructor; every handle of turborel-c owned, movable and not copyable | `[DESIGN] D2` | done |
+| S-API-2 | Statements and prepared statements, with parameters bound from C++ values, `std::optional` the null value | `[DESIGN] D2` | done |
+| S-API-3 | A query's rows as a range: a result a `std::ranges::random_access_range`, a cursor a `std::ranges::input_range` read as its batches come, each value read as its C++ type | `[DESIGN] D2` | done |
+| S-API-4 | Datetimes as `std::chrono` types, and intervals as `std::chrono` durations where they fit | `[DESIGN] D16` | done |
+| S-API-5 | Exact numbers as the driver's decimal type, every units and scale the protocol carries | `[DESIGN] D16` | done |
+| S-API-6 | Every failure thrown as `turborel::error`, a `std::runtime_error` carrying the whole failure; memory not had as `std::bad_alloc` | `[DESIGN] D10` | done |
+| S-API-7 | `std::span` and `std::string_view` at the boundaries | `[DESIGN] D2` | done |
+| S-API-8 | The CMake package `turborel-cpp` and its target `turborel::turborel-cpp`, found installed or built from source, turborel-c found or fetched with it | `[DESIGN] D9` | done |

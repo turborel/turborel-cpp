@@ -29,9 +29,9 @@ large objects, bulk copy, import and export, settings from a URI, the
 environment and service and password files, several servers, pipelines
 and pools.
 
-The driver is built in milestones, M0 to M8, and does not connect to a
-server yet. [CONFORMANCE.md](CONFORMANCE.md) shows what is done, row by
-row, and [TODO.md](TODO.md) what is open.
+[CONFORMANCE.md](CONFORMANCE.md) shows what it does, row by row, against
+every Turborel driver's parity matrix, and [TODO.md](TODO.md) what is
+open.
 
 ## Requirements
 
@@ -65,9 +65,9 @@ FetchContent or `add_subdirectory` of the source gives the same target.
 
 ## A first query
 
-This is what the standard API will be once milestone M7 builds it and
-M8's audit checks it. None of it runs yet, and its names may change
-until then.
+A program connects as a URI says, here over TLS checked against the
+authority of `ca.pem`, and reads a query's rows as a range, a parameter
+bound from a C++ value:
 
 ```cpp
 #include <turborel/turborel.hpp>
@@ -78,8 +78,9 @@ until then.
 
 int main() {
   try {
-    auto conn = turborel::connection::open("turborel://ann@localhost/?tls_mode=verify-full");
-    for (const auto& row : conn.query("SELECT ID, NAME FROM STAFF WHERE ID < ? ORDER BY ID", 3)) {
+    turborel::connection conn =
+        turborel::connection::open("turborel://ann@localhost:17439/?tls_mode=verify-full&tls_roots=ca.pem");
+    for (const turborel::row row : conn.query("SELECT ID, NAME FROM STAFF WHERE ID < ? ORDER BY ID", 3)) {
       std::cout << row.get<std::int64_t>(0) << ' ' << row.get<std::string_view>(1) << '\n';
     }
   } catch (const turborel::error& e) {
@@ -89,12 +90,18 @@ int main() {
 }
 ```
 
+Of a table STAFF of Ada, Grace and Edsger, it prints:
+
+```
+1 Ada
+2 Grace
+```
+
 ## The manual
 
 [doc/](doc/README.md) is the manual: a User's Guide, an API Reference
 and Appendices, published at
-https://turborel.com/docs/drivers/cpp/. Each
-chapter is written as the milestone that fills it lands. The SQL a
+https://turborel.com/docs/drivers/cpp/. The SQL a
 program sends, and the server, are described in Turborel's own manual,
 [The Turborel Documentation Set](https://github.com/turborel/turborel/blob/main/doc/README.md).
 [VERSIONING.md](VERSIONING.md) tells how the driver's releases are
