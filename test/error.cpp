@@ -70,5 +70,8 @@ TEST_CASE("an error is a runtime_error that reads as turborel-client's failure")
   const turborel::error copy = cited;
   CHECK(&copy.details() == &cited.details());
 
-  CHECK_THROWS_AS(throw turborel::error{plain.details()}, std::runtime_error);
+  // Thrown from a call, so no compiler finds the assertion's code after it
+  // unreachable.
+  const auto rethrow = [&plain] { throw turborel::error{plain.details()}; };
+  CHECK_THROWS_AS(rethrow(), std::runtime_error);
 }

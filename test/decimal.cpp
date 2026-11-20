@@ -9,7 +9,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <optional>
-#include <string>
 
 /// Verifies: [PROTOCOL Values] An exact number is its units over ten to
 /// its scale, and its text is turborel-client's: zeros padded before the
