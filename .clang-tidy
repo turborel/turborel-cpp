@@ -32,9 +32,10 @@ WarningsAsErrors: '*'
 HeaderFilterRegex: '.*/(include|src|test)/.*'
 FormatStyle: file
 CheckOptions:
-  # libc++ declares std::chrono's names in internal headers include-cleaner
-  # does not map to <chrono>, so <chrono> is taken as including them.
-  misc-include-cleaner.IgnoreHeaders: '.*/__chrono/.*;.*/__type_traits/.*'
+  # libc++ and libstdc++ declare std::chrono's names in internal headers
+  # include-cleaner does not map to <chrono>, so <chrono> is taken as
+  # including them.
+  misc-include-cleaner.IgnoreHeaders: '.*/__chrono/.*;.*/__type_traits/.*;.*/bits/chrono.*'
   # R-SIZE-1 and R-SIZE-3.
   readability-function-size.LineThreshold: 50
   readability-function-size.ParameterThreshold: 5

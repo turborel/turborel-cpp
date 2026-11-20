@@ -9,7 +9,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <chrono>
-#include <cstdint>
 #include <optional>
 
 /// Verifies: [PROTOCOL Data types] An interval's fields are numbered 0 YEAR,
@@ -54,6 +53,6 @@ TEST_CASE("an interval's units are months or microseconds") {
   CHECK(turborel::interval{.qualifier = day_to_second, .units = turborel::int128::max()}.microseconds() ==
         std::nullopt);
   CHECK(turborel::interval{.qualifier = year_to_month, .units = turborel::int128::min()}.months() == std::nullopt);
-  CHECK(turborel::interval{.qualifier = year_to_month, .units = turborel::int128{INT64_C(1) << 40}}.months() ==
+  CHECK(turborel::interval{.qualifier = year_to_month, .units = turborel::int128::from_halves(1, 0)}.months() ==
         std::nullopt);
 }
