@@ -1,4 +1,4 @@
-# Install and export rules (RULES.md D4): the library, its headers, the
+# Install and export rules (RULES.md D9): the library, its headers, the
 # CMake package that gives `turborel::turborel-cpp` to `find_package`, and
 # the license, which every package carries.
 include_guard(GLOBAL)

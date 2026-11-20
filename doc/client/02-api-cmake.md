@@ -2,12 +2,11 @@
 
 [Contents](README.md)
 
-turborel-cpp is built by CMake 3.25 or later and found by it.
+## NAME
 
-## The target
+`turborel-cpp`: the CMake package and target a program builds against.
 
-`turborel::turborel-cpp` is the library, its headers and its C++20
-requirement. A project gets it in one of three ways:
+## SYNOPSIS
 
 ```cmake
 find_package(turborel-cpp 0.0.0 EXACT CONFIG REQUIRED)   # an installed package
@@ -16,11 +15,13 @@ FetchContent_MakeAvailable(turborel-cpp)                  # the source fetched
 target_link_libraries(app PRIVATE turborel::turborel-cpp)
 ```
 
-The installed package matches only its exact version, the turborel
-release it is made for ([Appendix D: Versions](../appendix/d-versions.md)).
-The library is static, or shared where `BUILD_SHARED_LIBS` is on.
+## DESCRIPTION
 
-## Options
+`turborel::turborel-cpp` is the library, its headers and its C++20
+requirement, got in any of the three ways above. The installed package
+matches only its exact version, the Turborel release it is made for
+([Appendix D: Versions](../appendix/d-versions.md)). The library is
+static, or shared where `BUILD_SHARED_LIBS` is on.
 
 | Option | What it does | Default |
 |---|---|---|
@@ -33,19 +34,28 @@ The library is static, or shared where `BUILD_SHARED_LIBS` is on.
 | `TURBOREL_CPP_SANITIZE` | Builds with AddressSanitizer and UndefinedBehaviorSanitizer | off |
 | `TURBOREL_CPP_COVERAGE` | Builds with Clang's source-based coverage | off |
 
-## Presets
-
 `CMakePresets.json` names five builds, each in `build/<preset>/`, and a
-workflow of each that configures, builds and tests:
+workflow of each that configures, builds and tests: `debug`, `release`,
+`asan-ubsan`, `coverage` and `verify`, as `cmake --workflow --preset
+release`.
+
+## ERRORS
+
+`find_package` fails, as CMake fails a required package, where no
+installed package of the exact version is found.
+
+## EXAMPLES
 
 ```
-cmake --workflow --preset debug
 cmake --workflow --preset release
-cmake --workflow --preset asan-ubsan
-cmake --workflow --preset coverage
-cmake --workflow --preset verify
+cmake --install build/release --prefix /usr/local
 ```
+
+## STANDARD
+
+The driver's own (RULES.md D9).
 
 ## SEE ALSO
 
-[Installing](../user/01-installing.md)
+[Installing](../user/01-installing.md),
+[The turborel Namespace](01-api-namespace.md)

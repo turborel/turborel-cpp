@@ -1,5 +1,5 @@
 /// @file
-/// @brief The driver's error (RULES.md D5): its text, made once as it is
+/// @brief The driver's error (RULES.md D10): its text, made once as it is
 /// thrown, in the form turborel-client shows a failure.
 
 #include <turborel/error.hpp>

@@ -2,6 +2,8 @@
 
 [Contents](README.md)
 
-How a transaction begins and ends, autocommit, a cursor that ends its
-transaction as it ends, savepoints, and what a failure does to the
-transaction. It is filled in M3.
+This chapter will tell how a transaction begins and ends, by COMMIT and
+ROLLBACK or under autocommit, how a cursor and a large object's locator
+keep their transaction, how a session is reset or changes user, and what
+the server tells of the session's settings. It is filled at milestone
+M3.

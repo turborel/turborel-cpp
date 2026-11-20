@@ -1,7 +1,7 @@
 /// @file
 /// @brief A program built against the installed package, which throws and
 /// catches the driver's error through the installed headers and library
-/// (RULES.md D4).
+/// (RULES.md D9).
 
 #include <turborel/turborel.hpp>
 

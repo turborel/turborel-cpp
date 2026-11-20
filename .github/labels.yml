@@ -77,7 +77,7 @@
   description: "CMake, presets, the lint and format configs"
 - name: "dependencies"
   color: "#0366d6"
-  description: "A dependency or a pinned tool changes (R-SAFE-5, R-PROC-4)"
+  description: "A dependency or a pinned tool changes (R-DEP-1, R-DEP-3)"
 
 # Triage
 - name: "duplicate"

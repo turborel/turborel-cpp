@@ -1,5 +1,5 @@
 # Compiler warnings for the project's own targets (RULES.md R-LINT-1), and
-# the sanitizer and coverage instrumentation (RULES.md D9, D10). Third-party
+# the sanitizer and coverage instrumentation (RULES.md D14, D7). Third-party
 # targets get none of these: their warnings are not ours to fix.
 include_guard(GLOBAL)
 
@@ -58,7 +58,7 @@ function(turborel_cpp_instrument target)
   endif()
   if(TURBOREL_CPP_COVERAGE)
     if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      message(FATAL_ERROR "[DESIGN] RULES.md D10: coverage is measured with Clang, not ${CMAKE_CXX_COMPILER_ID}")
+      message(FATAL_ERROR "[DESIGN] RULES.md D7: coverage is measured with Clang, not ${CMAKE_CXX_COMPILER_ID}")
     endif()
     set(flags -fprofile-instr-generate -fcoverage-mapping)
     target_compile_options(${target} PUBLIC ${flags})

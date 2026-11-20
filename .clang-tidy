@@ -1,4 +1,4 @@
-# R-LINT-2: clang-tidy, of the version RULES.md D8 pins, with the C++ Core
+# R-LINT-2: clang-tidy, of the version RULES.md D13 pins, with the C++ Core
 # Guidelines', modernize, bugprone and the other strict groups on, every
 # finding an error. Each check left off says why. test/.clang-tidy relaxes
 # what Catch2's macros cannot meet.
@@ -23,7 +23,7 @@ Checks: >
 # modernize-use-trailing-return-type: a style, not a defect; the standard
 #   library and the Core Guidelines write return types first.
 # readability-identifier-length: `e` and `i` are clearer than longer names
-#   in a short scope; review judges names (R-STYLE-3).
+#   in a short scope; review judges names (R-STYLE-2).
 # cppcoreguidelines-avoid-magic-numbers: an alias of readability-magic-
 #   numbers, which stays on (R-CONST-1).
 # misc-non-private-member-variables-in-classes: a struct of public fields,
@@ -35,9 +35,9 @@ CheckOptions:
   # R-SIZE-1 and R-SIZE-3.
   readability-function-size.LineThreshold: 50
   readability-function-size.ParameterThreshold: 5
-  # R-CF-2.
+  # R-SIZE-5.
   readability-function-cognitive-complexity.Threshold: 15
-  # R-STYLE-3: the standard library's casing.
+  # R-STYLE-2: the standard library's casing.
   readability-identifier-naming.NamespaceCase: lower_case
   readability-identifier-naming.ClassCase: lower_case
   readability-identifier-naming.StructCase: lower_case

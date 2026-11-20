@@ -1,4 +1,4 @@
-# Builds and checks a release, run by hand only (RULES.md D14). It builds
+# Builds and checks a release, run by hand only (RULES.md D5). It builds
 # and tests the Release preset on each platform, installs it, and keeps
 # each install and the source archive as the run's artifacts. It publishes
 # nothing: its last step is written but off, and the owner turns it on once

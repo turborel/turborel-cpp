@@ -1,10 +1,10 @@
-# The checks beside the compiler (RULES.md D8): clang-tidy as each of the
+# The checks beside the compiler (RULES.md D13): clang-tidy as each of the
 # project's targets builds, and, as tests CTest runs, clang-format, the
 # source rules and Doxygen. The tools are pinned to one LLVM major version,
 # since another version formats and lints differently.
 include_guard(GLOBAL)
 
-# The LLVM major version of clang-format and clang-tidy (RULES.md D8); the
+# The LLVM major version of clang-format and clang-tidy (RULES.md D13); the
 # exact release is pinned in tools/requirements-lint.txt.
 set(TURBOREL_CPP_LLVM_TOOLS_MAJOR 23)
 
@@ -19,7 +19,7 @@ function(turborel_cpp_find_llvm_tool out tool)
   if(NOT result EQUAL 0 OR NOT version_text MATCHES "version ${TURBOREL_CPP_LLVM_TOOLS_MAJOR}\\.")
     message(
       FATAL_ERROR
-        "[DESIGN] RULES.md D8: ${${out}} is not ${tool} ${TURBOREL_CPP_LLVM_TOOLS_MAJOR}; "
+        "[DESIGN] RULES.md D13: ${${out}} is not ${tool} ${TURBOREL_CPP_LLVM_TOOLS_MAJOR}; "
         "install tools/requirements-lint.txt, or set ${out} to the pinned one")
   endif()
 endfunction()
@@ -46,14 +46,16 @@ function(turborel_cpp_tidy target)
   endif()
 endfunction()
 
-# Adds the checks that run as tests: the source rules always, with the
-# tests; the format and the docs when linting.
+# Adds the checks that run as tests: the source and manual rules always,
+# with the tests; the format and the docs when linting.
 function(turborel_cpp_checks)
   if(NOT TURBOREL_CPP_BUILD_TESTS)
     return()
   endif()
   add_test(NAME check.sources COMMAND "${CMAKE_COMMAND}" "-DROOT=${PROJECT_SOURCE_DIR}" -P
                                       "${PROJECT_SOURCE_DIR}/cmake/CheckSources.cmake")
+  add_test(NAME check.manual COMMAND "${CMAKE_COMMAND}" "-DROOT=${PROJECT_SOURCE_DIR}" -P
+                                     "${PROJECT_SOURCE_DIR}/cmake/CheckManual.cmake")
   if(NOT TURBOREL_CPP_LINT)
     return()
   endif()

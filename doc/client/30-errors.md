@@ -1,15 +1,16 @@
-# turborel::error
+# Errors
 
 [Contents](README.md)
 
-Every failure of the driver, a statement's, a connection's or the
-driver's own, is thrown as a `turborel::error`, declared in
-`<turborel/error.hpp>` and included by `<turborel/turborel.hpp>`. A call
-either does what it says or throws one; no failure is a return code.
+## NAME
+
+`turborel::error`: every failure of the driver, thrown as an exception.
 
 ## SYNOPSIS
 
 ```cpp
+#include <turborel/error.hpp>
+
 namespace turborel {
 
 struct diagnostics {
@@ -41,28 +42,34 @@ public:
 
 ## DESCRIPTION
 
-A `failure` holds what the protocol's failure holds: its SQLCODE,
-negative for an exception; its SQLSTATE, five characters; its message in
-plain words; the clause of a standard it cites, if any; where in the
-statement it was found, counting characters, if known; and whether the
-session's transaction is still active after it. Granted the capability
-`diagnostics`, the server says more, and `diagnostics` holds it: the
-severity, ERROR, FATAL, WARNING or NOTICE; a detail, such as the key a
-constraint refused; a hint; the trigger or routine running; and the
-schema, table, column, data type and constraint it is about, each where
-it is known.
+A call either does what it says or throws a `turborel::error`; no
+failure is a return code. A `failure` holds what the protocol's failure
+holds: its SQLCODE, negative for an exception; its SQLSTATE, five
+characters; its message in plain words; the clause of a standard it
+cites, if any; where in the statement it was found, counting
+characters, if known; and whether the session's transaction is still
+active after it. Granted the capability `diagnostics`, the server says
+more, and `diagnostics` holds it: the severity, ERROR, FATAL, WARNING or
+NOTICE; a detail, such as the key a constraint refused; a hint; the
+trigger or routine running; and the schema, table, column, data type and
+constraint it is about, each where it is known.
 
 An `error` is a `std::runtime_error`, so a program that catches those
 catches it. `details` gives its failure whole, and `sqlcode`, `sqlstate`
 and `message` its commonest parts. Its `what()` reads as turborel-client
-shows a failure, the rule in brackets and the position after it where the
-failure has them:
+shows a failure, the rule in brackets and the position after it where
+the failure has them:
 
 ```text
 SQLCODE -103 (SQLSTATE 2A000): table ANN.NOPE is not defined [X3.135-1986 §5.4 SR5] (at character 15)
 ```
 
-Copying an `error` never throws: its copies share one failure.
+Copying an `error` never throws: its copies share one failure. The
+failures statements raise come with milestone M3.
+
+## ERRORS
+
+None: it is what the driver's other calls throw.
 
 ## EXAMPLES
 
@@ -85,6 +92,12 @@ SQLCODE -919 (SQLSTATE 08006): lost
 08006
 ```
 
+## STANDARD
+
+[PROTOCOL Composite fields], the failure; [PROTOCOL Errors and notices],
+its diagnostics.
+
 ## SEE ALSO
 
-[Errors](../user/10-errors.md), [Appendix B: Errors](../appendix/b-errors.md)
+[Errors and Diagnostics](../user/10-errors.md),
+[Appendix B: Errors](../appendix/b-errors.md)

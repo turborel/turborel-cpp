@@ -1,6 +1,6 @@
 /// @file
 /// @brief The driver's error: a statement's or a connection's failure,
-/// thrown as an exception (RULES.md D5), with every field of the protocol's
+/// thrown as an exception (RULES.md D10), with every field of the protocol's
 /// failure [PROTOCOL Composite fields] and its diagnostics [PROTOCOL Errors
 /// and notices].
 
@@ -69,7 +69,7 @@ struct failure {
   friend bool operator==(const failure&, const failure&) = default;
 };
 
-/// The exception every failure of the driver is thrown as (RULES.md D5).
+/// The exception every failure of the driver is thrown as (RULES.md D10).
 ///
 /// It is a `std::runtime_error`, so code that catches those catches it, and
 /// its `what()` reads as turborel-client shows a failure:

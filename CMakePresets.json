@@ -37,7 +37,7 @@
     {
       "name": "asan-ubsan",
       "displayName": "asan-ubsan",
-      "description": "Tests under AddressSanitizer and UndefinedBehaviorSanitizer (RULES.md D9)",
+      "description": "Tests under AddressSanitizer and UndefinedBehaviorSanitizer (RULES.md D14)",
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
@@ -47,7 +47,7 @@
     {
       "name": "coverage",
       "displayName": "coverage",
-      "description": "Tests measured by Clang's source-based coverage, against the floors (RULES.md D10)",
+      "description": "Tests measured by Clang's source-based coverage, against the floors (RULES.md D7)",
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
@@ -208,7 +208,7 @@
     {
       "name": "asan-ubsan",
       "displayName": "asan-ubsan",
-      "description": "Tests under AddressSanitizer and UndefinedBehaviorSanitizer (RULES.md D9)",
+      "description": "Tests under AddressSanitizer and UndefinedBehaviorSanitizer (RULES.md D14)",
       "steps": [
         {
           "type": "configure",
@@ -227,7 +227,7 @@
     {
       "name": "coverage",
       "displayName": "coverage",
-      "description": "Tests measured by Clang's source-based coverage, against the floors (RULES.md D10)",
+      "description": "Tests measured by Clang's source-based coverage, against the floors (RULES.md D7)",
       "steps": [
         {
           "type": "configure",

@@ -1,19 +1,27 @@
 # Volume II: API Reference
 
-The API of turborel-cpp, a page per main class or header.
+The standard API, then the low-level client beneath it, a page for each main interface or module, to look a thing up.
 
 [The documentation set](../README.md)
 
 ## Contents
 
-- [The turborel Namespace](01-overview.md)
-- [turborel::connection](02-connection.md)
-- [Statements, Cursors and Rows](03-statements.md)
-- [Values](04-values.md)
-- [turborel::error](05-errors.md)
-- [Large Objects](06-large-objects.md)
-- [Copy, Import and Export](07-copying.md)
-- [Settings](08-settings.md)
-- [Pipelines](09-pipelines.md)
-- [Pools and the SQL-agent](10-pools.md)
-- [The CMake Package](11-cmake.md)
+### The standard API
+
+- [The turborel Namespace](01-api-namespace.md)
+- [The CMake Package](02-api-cmake.md)
+
+### The low-level client
+
+The same pages in every Turborel driver, one for each part of turborel-client.
+
+- [Connections](21-connections.md)
+- [Statements and Cursors](22-statements.md)
+- [Values](23-values.md)
+- [Large Objects](24-large-objects.md)
+- [Copy, Import and Export](25-copy.md)
+- [Settings](26-settings.md)
+- [Pipelines](27-pipelines.md)
+- [Pools](28-pools.md)
+- [The SQL-agent](29-sql-agent.md)
+- [Errors](30-errors.md)

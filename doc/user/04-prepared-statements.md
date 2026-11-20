@@ -2,6 +2,8 @@
 
 [Contents](README.md)
 
-Preparing a statement once and running it with parameters, as many times
-as wanted; cursors read in parts, several of one statement at once;
-describing a statement or a cursor. It is filled in M3.
+This chapter will tell how a program prepares a statement once, its
+parameters written `?`, and runs it many times; how it reads a query's
+rows through a cursor, in parts, several cursors of one statement at
+once; and how it describes a statement and lets it go. It is filled at
+milestone M3.

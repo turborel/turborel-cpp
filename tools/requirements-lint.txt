@@ -1,4 +1,4 @@
-# The pinned clang-format and clang-tidy (RULES.md D8), PyPI's wheels of
+# The pinned clang-format and clang-tidy (RULES.md D13), PyPI's wheels of
 # LLVM's releases: `pip install -r tools/requirements-lint.txt`.
 clang-format==23.1.4
 clang-tidy==23.1.4

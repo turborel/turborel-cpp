@@ -1,6 +1,6 @@
 # Every check a change must pass (RULES.md R-PROC-1), on each platform the
-# driver claims to build on (D13): the lints and docs (D8), the build and
-# tests with each compiler, the sanitizers (D9) and coverage (D10).
+# driver claims to build on (D4): the lints and docs (D13), the build and
+# tests with each compiler, the sanitizers (D14) and coverage (D7).
 name: verify
 
 # A pull request is checked once, through pull_request, and main again once

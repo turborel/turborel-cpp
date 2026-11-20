@@ -1,5 +1,5 @@
 /// @file
-/// @brief Tests of the driver's error, turborel::error (RULES.md D5).
+/// @brief Tests of the driver's error, turborel::error (RULES.md D10).
 
 #include <turborel/error.hpp>
 
@@ -52,7 +52,7 @@ TEST_CASE("an error keeps every field of its failure") {
   CHECK(e.details().diagnostics.value_or(turborel::diagnostics{}).constraint == "NOPE_PK");
 }
 
-/// Verifies: [DESIGN] D5 An error is a std::runtime_error whose what() reads
+/// Verifies: [DESIGN] D10 An error is a std::runtime_error whose what() reads
 /// as turborel-client's failure does, its rule and position only where the
 /// failure has them, and whose copies share the failure without throwing.
 TEST_CASE("an error is a runtime_error that reads as turborel-client's failure") {

@@ -15,15 +15,15 @@ project(
 include(CMakeDependentOption)
 include(GNUInstallDirs)
 
-option(TURBOREL_CPP_BUILD_TESTS "Build the tests (RULES.md D7)" ${PROJECT_IS_TOP_LEVEL})
-option(TURBOREL_CPP_INSTALL "Generate the install and export rules (RULES.md D4)" ON)
-option(TURBOREL_CPP_LINT "Run clang-tidy as the library builds, and the format, source and doc checks (RULES.md D8)" OFF)
-option(TURBOREL_CPP_REQUIRE_DOXYGEN "Fail to configure without Doxygen when linting (RULES.md D8)" OFF)
-option(TURBOREL_CPP_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer (RULES.md D9)" OFF)
-option(TURBOREL_CPP_COVERAGE "Build with Clang's source-based coverage (RULES.md D10)" OFF)
+option(TURBOREL_CPP_BUILD_TESTS "Build the tests (RULES.md D12)" ${PROJECT_IS_TOP_LEVEL})
+option(TURBOREL_CPP_INSTALL "Generate the install and export rules (RULES.md D9)" ON)
+option(TURBOREL_CPP_LINT "Run clang-tidy as the library builds, and the format, source and doc checks (RULES.md D13)" OFF)
+option(TURBOREL_CPP_REQUIRE_DOXYGEN "Fail to configure without Doxygen when linting (RULES.md D13)" OFF)
+option(TURBOREL_CPP_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer (RULES.md D14)" OFF)
+option(TURBOREL_CPP_COVERAGE "Build with Clang's source-based coverage (RULES.md D7)" OFF)
 # Off until turborel-c reaches its milestone M3 and has an API to wrap
-# (RULES.md D6).
-option(TURBOREL_CPP_WITH_C "Build against turborel-c (RULES.md D6)" OFF)
+# (RULES.md D11).
+option(TURBOREL_CPP_WITH_C "Build against turborel-c (RULES.md D11)" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(TurborelWarnings)

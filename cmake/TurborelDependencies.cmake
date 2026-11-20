@@ -3,15 +3,15 @@ include_guard(GLOBAL)
 
 include(FetchContent)
 
-# turborel-c, the C driver this one wraps (RULES.md D6). Its installed
+# turborel-c, the C driver this one wraps (RULES.md D11). Its installed
 # CMake package is found first, as vcpkg, Conan or `cmake --install` leave
 # it; failing that, its pinned commit is fetched.
 set(TURBOREL_CPP_C_REPOSITORY
     "https://github.com/turborel/turborel-c.git"
-    CACHE STRING "Where turborel-c is fetched from (RULES.md D6)")
+    CACHE STRING "Where turborel-c is fetched from (RULES.md D11)")
 set(TURBOREL_CPP_C_COMMIT
     ""
-    CACHE STRING "The full commit of turborel-c fetched (RULES.md D6)")
+    CACHE STRING "The full commit of turborel-c fetched (RULES.md D11)")
 
 # Links `target` to turborel-c, when the driver is built against it.
 function(turborel_cpp_link_c target)
@@ -31,7 +31,7 @@ function(turborel_cpp_link_c target)
   target_link_libraries(${target} PUBLIC turborel::turborel-c)
 endfunction()
 
-# Catch2, the tests' framework (RULES.md D7), at a pinned release whose
+# Catch2, the tests' framework (RULES.md D12), at a pinned release whose
 # archive is checked by its SHA-256.
 set(TURBOREL_CPP_CATCH2_VERSION 3.16.1)
 set(TURBOREL_CPP_CATCH2_SHA256 d16bd1b8b2364918bd472cb216394acb93bde6784890df0d91bccfb3f28d777d)

@@ -1,5 +1,5 @@
 # R-STYLE-1: every C++ source is formatted by clang-format, of the version
-# RULES.md D8 pins. LLVM's style, wider, so a citation or a message rarely
+# RULES.md D13 pins. LLVM's style, wider, so a citation or a message rarely
 # has to break.
 ---
 Language: Cpp

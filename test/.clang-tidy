@@ -1,5 +1,5 @@
 # The tests' clang-tidy: the project's, less what Catch2's macros cannot
-# meet, and literal fixtures (R-CONST-4).
+# meet, and literal fixtures (R-CONST-5).
 ---
 InheritParentConfig: true
 Checks: >
@@ -9,7 +9,7 @@ Checks: >
   -cert-err58-cpp,
   -cppcoreguidelines-avoid-non-const-global-variables,
   -misc-use-anonymous-namespace
-# readability-magic-numbers: tests use literal fixtures (R-CONST-4).
+# readability-magic-numbers: tests use literal fixtures (R-CONST-5).
 # cppcoreguidelines-avoid-do-while, readability-function-cognitive-
 #   complexity: Catch2's assertion macros expand to do-while loops and
 #   branches the test itself does not write.

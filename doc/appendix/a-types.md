@@ -2,5 +2,8 @@
 
 [Contents](README.md)
 
-Every data type tag and value tag of the protocol, 1 to 27, mapped to
-the C++ type the driver gives and takes. It is filled in M1.
+This appendix will map every data type and value tag of the native
+protocol, 1 to 27, to the C++ type the driver gives and takes,
+with the bounds of each, such as the exact number's units and scale, a
+timestamp's displacement and an interval's qualifier. It is filled at
+milestone M1.

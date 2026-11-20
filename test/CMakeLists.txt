@@ -1,4 +1,4 @@
-# The tests (RULES.md D7, R-TEST): one Catch2 binary of a source file per
+# The tests (RULES.md D12, R-TEST): one Catch2 binary of a source file per
 # area, each test a CTest test of its own; and the install package, built
 # and used as a program that finds it would.
 turborel_cpp_fetch_catch2()
