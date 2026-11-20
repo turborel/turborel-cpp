@@ -171,7 +171,7 @@ TEST_CASE("compressed frames are inflated and sent past the threshold") {
   CHECK_THROWS(conn.query("SELECT '" + std::string(2000, 'x') + "' FROM T"));
   CHECK(written.at(hello) == std::byte{'z'});
   CHECK(written.at(hello + 5) == std::byte{'Q'});
-  const test::bytes& sample = test::frame("query-compressed");
+  const test::bytes sample = test::frame("query-compressed");
   CHECK(std::equal(sample.begin() + 5, sample.begin() + 10, written.begin() + static_cast<std::ptrdiff_t>(hello) + 5));
   test::bytes inner_z = test::frame("rows-compressed");
   inner_z.at(5) = std::byte{'z'};
@@ -303,7 +303,7 @@ namespace {
 
 /// Whether `written` holds the sample `name`'s bytes from `at` on.
 bool wrote(const test::bytes& written, std::size_t at, const std::string& name) {
-  const test::bytes& sample = test::frame(name);
+  const test::bytes sample = test::frame(name);
   return written.size() >= at + sample.size() &&
          std::equal(sample.begin(), sample.end(), written.begin() + static_cast<std::ptrdiff_t>(at));
 }
