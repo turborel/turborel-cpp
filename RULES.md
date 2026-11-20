@@ -549,7 +549,7 @@ FetchContent pin, so it is raised by hand, in a commit of its own.
 
 #### D13. clang-format and clang-tidy of LLVM 23, and Doxygen, check what the compiler does not
 
-- **clang-format 23.1.4** formats every C++ source by `.clang-format`
+- **clang-format 23.1.5** formats every C++ source by `.clang-format`
   (R-STYLE-1).
 - **clang-tidy 23.1.4** runs as each of the project's targets builds, by
   `.clang-tidy`: `bugprone`, `cert`, `clang-analyzer`, `concurrency`,
@@ -559,9 +559,9 @@ FetchContent pin, so it is raised by hand, in a commit of its own.
 - **Doxygen** builds the API reference, failing on any undocumented public
   item or malformed doc comment (R-DOC-1).
 
-Both LLVM tools are pinned to one release, from PyPI's wheels, in
-`tools/requirements-lint.txt`, which Dependabot follows; another version
-formats and lints differently. The build refuses a clang-format or
+Both LLVM tools are pinned, from PyPI's wheels, in
+`tools/requirements-lint.txt`, which Dependabot follows, each release
+of LLVM 23; another major version formats and lints differently. The build refuses a clang-format or
 clang-tidy of another major version. Doxygen is checked wherever it is
 found, and CI requires it (`TURBOREL_CPP_REQUIRE_DOXYGEN`).
 
