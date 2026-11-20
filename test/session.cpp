@@ -95,6 +95,7 @@ TEST_CASE("a connection asks for every capability but compression") {
 /// [PROTOCOL Capabilities].
 TEST_CASE("an offer of the program's own: compression and attributes") {
   LIVE_OR_SKIP();
+  ZLIB_OR_SKIP();
   turborel::connect_options offer = asking({"compression"});
   offer.attribute("application", "cpp-live").compress_from(64);
   turborel::connection conn = test::live::trusted(offer);

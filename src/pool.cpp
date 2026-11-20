@@ -39,7 +39,7 @@ struct pool_shared {
   /// Their addresses, as turborel-c takes them.
   std::vector<const char*> reset_texts;
   /// The pool.
-  owner<trl_pool, trl_pool_free> pool;
+  owner<trl_pool, trl_pool_free> handle;
 };
 
 } // namespace detail
@@ -101,7 +101,7 @@ template <typename Make>
 std::shared_ptr<detail::pool_shared> made_pool(std::shared_ptr<detail::pool_shared> held, const Make& make) {
   trl_pool* made = nullptr;
   detail::check(make(&made));
-  held->pool.reset(made);
+  held->handle.reset(made);
   return held;
 }
 
@@ -127,7 +127,7 @@ pooled::~pooled() { give_back(); }
 
 void pooled::give_back() noexcept {
   if (held_) {
-    trl_pool_release(from_->pool.get(), detail::conn_access::release(conn_));
+    trl_pool_release(from_->handle.get(), detail::conn_access::release(conn_));
     held_ = false;
   }
 }
@@ -149,7 +149,7 @@ pool pool::of(connector make, const pool_config& config) {
 pooled pool::get() {
   trl_conn* made = nullptr;
   connector_threw = nullptr;
-  const trl_status status = trl_pool_get(held_->pool.get(), &made);
+  const trl_status status = trl_pool_get(held_->handle.get(), &made);
   if (connector_threw) {
     std::rethrow_exception(std::exchange(connector_threw, nullptr));
   }
@@ -160,13 +160,13 @@ pooled pool::get() {
 
 std::size_t pool::made() const {
   std::size_t count = 0;
-  trl_pool_counts(held_->pool.get(), &count, nullptr);
+  trl_pool_counts(held_->handle.get(), &count, nullptr);
   return count;
 }
 
 std::size_t pool::idle() const {
   std::size_t count = 0;
-  trl_pool_counts(held_->pool.get(), nullptr, &count);
+  trl_pool_counts(held_->handle.get(), nullptr, &count);
   return count;
 }
 

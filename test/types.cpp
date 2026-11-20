@@ -52,7 +52,8 @@ TEST_CASE("the scalar types are read with their parameters") {
   CHECK(c.type_written == "CHARACTER(4)");
   CHECK_FALSE(c.declared_name.has_value());
   CHECK(c.not_null == false);
-  const std::vector<turborel::column> two = described("description").columns();
+  const turborel::result described_two = described("description");
+  const std::vector<turborel::column> two = described_two.columns();
   REQUIRE(two.size() == 2);
   CHECK(two.at(0).name == "K");
   CHECK(two.at(0).not_null == true);

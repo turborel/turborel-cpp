@@ -14,6 +14,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#ifndef _WIN32
+#include <stdlib.h> // NOLINT(modernize-deprecated-headers): POSIX's setenv and unsetenv, which <cstdlib> need not declare.
+#endif
 #include <fstream>
 #include <initializer_list>
 #include <map>
@@ -224,6 +227,17 @@ void set_variable(const char* name, const char* value) {
   // NOLINTNEXTLINE(concurrency-mt-unsafe): the tests that set one run on one thread.
   static_cast<void>(value == nullptr ? unsetenv(name) : setenv(name, value, 1));
 #endif
+}
+
+bool has_zlib() {
+  try {
+    turborel::connect_options compressed;
+    compressed.ask_none().ask(turborel::capability::compression);
+    static_cast<void>(open_scripted(ready({"compression"}), compressed));
+    return true;
+  } catch (const turborel::error&) {
+    return false;
+  }
 }
 
 bool has_tls() {

@@ -167,7 +167,21 @@ void set_variable(const char* name, const char* value);
 /// @return Whether it was.
 bool has_tls();
 
+/// Whether turborel-c was built with zlib, which compressed frames need;
+/// of one built with none, the tests of compression are skipped.
+/// @return Whether it was.
+bool has_zlib();
+
 } // namespace test
+
+/// Skips a test of compressed frames where turborel-c was built with no
+/// zlib, as where the platform has none.
+#define ZLIB_OR_SKIP()                                                                                                 \
+  do {                                                                                                                 \
+    if (!test::has_zlib()) {                                                                                           \
+      SKIP("turborel-c was built with no zlib, so compressed frames are not had");                                     \
+    }                                                                                                                  \
+  } while (false)
 
 /// Skips a test of TLS or SCRAM where turborel-c was built with no TLS
 /// library, as of an OpenSSL older than it takes.

@@ -149,6 +149,7 @@ TEST_CASE("a malformed field fails, a value's failure is its request's") {
 /// inflates to another length fail the connection; a frame longer than the
 /// client's threshold is sent compressed, a shorter one as it is.
 TEST_CASE("compressed frames are inflated and sent past the threshold") {
+  ZLIB_OR_SKIP();
   turborel::connect_options compressed = asking({"compression"});
   compressed.compress_from(1024);
   auto [conn, stream] = test::open_scripted(test::joined({
