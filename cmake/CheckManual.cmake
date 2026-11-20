@@ -4,8 +4,10 @@
 # R-DOC-7 and RULES.md D4: every page of doc/ opens with its `# Title` and
 # a line holding only `[Contents](README.md)`, as turborel.com's
 # documentation site reads it; each volume's README.md lists its pages,
-# and doc/README.md each volume; every relative link of a document names a
-# file that exists, and a link of doc/ that leaves doc/ is a full URL.
+# and doc/README.md each volume; user/01-installing.md is there; doc/ holds
+# no images; every relative link of a document names a file that exists;
+# and doc/ links to this repository's files by relative links, which the
+# site points at GitHub, and to Turborel's manual by its GitHub address.
 cmake_minimum_required(VERSION 3.25)
 
 if(NOT DEFINED ROOT)
@@ -14,6 +16,11 @@ endif()
 
 # The line a page holds under its title, which the site removes.
 set(contents_line "[Contents](README.md)")
+# This repository on GitHub, which doc/ links to by relative links alone.
+set(own_repository "https://github.com/turborel/turborel-cpp")
+# Turborel's repository, which doc/ links to for its manual alone.
+set(turborel_repository "https://github.com/turborel/turborel/")
+set(turborel_manual "https://github.com/turborel/turborel/blob/main/doc/")
 
 set(failures "")
 
@@ -51,11 +58,38 @@ foreach(file IN LISTS documents)
     get_filename_component(resolved "${dir}/${target}" ABSOLUTE)
     if(NOT EXISTS "${resolved}")
       fail(R-DOC-7 "${file}" "a link to ${target}, which does not exist")
-    elseif(file MATCHES "^${ROOT}/doc/" AND NOT resolved MATCHES "^${ROOT}/doc/")
-      fail(R-DOC-7 "${file}" "a link to ${target}, out of doc/, which is not a full URL")
     endif()
   endforeach()
 endforeach()
+
+file(GLOB_RECURSE pages "${ROOT}/doc/*")
+foreach(page IN LISTS pages)
+  if(NOT page MATCHES "\\.md$")
+    fail(R-DOC-7 "${page}" "is not a page: doc/ holds pages alone, and no images")
+    continue()
+  endif()
+  file(READ "${page}" text)
+  string(REPLACE "[" "@LB@" text "${text}")
+  string(REPLACE "]" "@RB@" text "${text}")
+  if(text MATCHES "!@LB@")
+    fail(R-DOC-7 "${page}" "shows an image, and doc/ holds none")
+  endif()
+  string(REGEX MATCHALL "@RB@\\(https://github\\.com/turborel/[^)]+" urls "${text}")
+  foreach(url IN LISTS urls)
+    string(SUBSTRING "${url}" 5 -1 url)
+    string(FIND "${url}" "${own_repository}" own)
+    string(FIND "${url}" "${turborel_repository}" turborel)
+    string(FIND "${url}" "${turborel_manual}" manual)
+    if(own EQUAL 0)
+      fail(R-DOC-7 "${page}" "links to ${url}, a file of this repository, by its address, not a relative link")
+    elseif(turborel EQUAL 0 AND NOT manual EQUAL 0)
+      fail(R-DOC-7 "${page}" "links to ${url}, of Turborel's repository but not its manual")
+    endif()
+  endforeach()
+endforeach()
+if(NOT EXISTS "${ROOT}/doc/user/01-installing.md")
+  fail(R-DOC-7 "${ROOT}/doc/user" "has no 01-installing.md, whose name the site keeps")
+endif()
 
 file(GLOB_RECURSE pages "${ROOT}/doc/*.md")
 foreach(page IN LISTS pages)

@@ -9,7 +9,7 @@ project(
   turborel-cpp
   VERSION 0.0.0
   DESCRIPTION "The C++ driver for turborel"
-  HOMEPAGE_URL "https://github.com/turborel/turborel-cpp"
+  HOMEPAGE_URL "https://turborel.com/docs/drivers/cpp/"
   LANGUAGES CXX)
 
 include(CMakeDependentOption)
