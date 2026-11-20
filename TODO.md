@@ -9,27 +9,9 @@ in [RULES.md](RULES.md).
 
 Code never cites this file (R-DOC-5).
 
-[M3 Statements](#m3-statements) · [M4 Large objects and bulk](#m4-large-objects-and-bulk) · [M5 Settings](#m5-settings) · [M6 Throughput](#m6-throughput) · [M7 Standard API](#m7-standard-api) · [M8 Parity audit](#m8-parity-audit)
+[M4 Large objects and bulk](#m4-large-objects-and-bulk) · [M5 Settings](#m5-settings) · [M6 Throughput](#m6-throughput) · [M7 Standard API](#m7-standard-api) · [M8 Parity audit](#m8-parity-audit)
 
 ---
-
-## M3 Statements
-
-- Queries and prepared statements: P-REQ-2, P-QUERY-2 to P-QUERY-6,
-  P-EXEC-2 to P-EXEC-5, P-PREPD-2, the P-PREP, P-FETCH, P-CLOSE, P-DEALLOC and
-  P-DESC rows, P-FIELD-10, the C-RUN rows but C-RUN-6, and the C-PREP rows,
-  C-PREP-7 among them.
-- Completions, failures, notices and conditions: P-COMPL-2 to
-  P-COMPL-6, the P-ERRN rows but P-ERRN-6, and C-TOLD-2 to C-TOLD-9.
-- The session: P-PING-1, the P-RESET and P-CHUSER rows, and the C-CTRL
-  rows.
-- Capabilities: P-CAP-1, P-CAP-3 to P-CAP-9, P-CAP-11, P-CAP-13 and
-  P-CAP-15 to P-CAP-18.
-- XML and UUID values: the C-XML and C-UUID rows.
-- Conversations: P-CONV-1 to P-CONV-3 and P-CONV-6.
-- The manual: the chapters Running Queries, Prepared Statements,
-  Transactions and Errors and Diagnostics; the pages of statements and
-  errors; Appendix B.
 
 ## M4 Large objects and bulk
 

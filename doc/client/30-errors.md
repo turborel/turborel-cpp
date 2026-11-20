@@ -64,8 +64,20 @@ the failure has them:
 SQLCODE -103 (SQLSTATE 2A000): table ANN.NOPE is not defined [X3.135-1986 §5.4 SR5] (at character 15)
 ```
 
-Copying an `error` never throws: its copies share one failure. The
-failures statements raise come with milestone M3.
+Copying an `error` never throws: its copies share one failure.
+
+A failure of class 08, but 08003, ends the connection, as one of class
+28 does as a connection is made; every call on a lost connection then
+fails with -919, 08006. Every other failure leaves the connection ready
+for the next statement, its transaction as `active` says. A warning
+does not fail its call: it is the completion's SQLSTATE, a condition or
+a notice. Memory not had is thrown as `std::bad_alloc`, not as an
+`error`, as the standard library throws it. What a program's own code
+throws in a call the driver makes of it, a handler, a stream's read or a
+connector, is thrown as it was, once the driver's call returns.
+`turborel::import_error`, an `error` too, says what stopped an import
+([Copy, Import and Export](25-copy.md)). [Appendix B:
+Errors](../appendix/b-errors.md) lists every code the driver gives.
 
 ## ERRORS
 
