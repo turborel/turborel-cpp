@@ -1,0 +1,11 @@
+# The CMake package of turborel-cpp: `find_package(turborel-cpp CONFIG)`
+# gives the target `turborel::turborel-cpp` (RULES.md D4).
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+if(@TURBOREL_CPP_WITH_C@)
+  find_dependency(turborel-c @PROJECT_VERSION@ EXACT CONFIG)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/turborel-cpp-targets.cmake")
+check_required_components(turborel-cpp)

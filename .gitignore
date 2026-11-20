@@ -1,0 +1,11 @@
+# CMake's builds, one directory per preset (CMakePresets.json).
+/build/
+/out/
+CMakeUserPresets.json
+compile_commands.json
+.cache/
+.idea/
+.vscode/
+.vs/
+.DS_Store
+.claude/

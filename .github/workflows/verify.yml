@@ -1,0 +1,105 @@
+# Every check a change must pass (RULES.md R-PROC-1), on each platform the
+# driver claims to build on (D13): the lints and docs (D8), the build and
+# tests with each compiler, the sanitizers (D9) and coverage (D10).
+name: verify
+
+# A pull request is checked once, through pull_request, and main again once
+# it is merged.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to a pull request replaces its checks still running.
+concurrency:
+  group: verify-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # clang-tidy, clang-format, the source rules, Doxygen and the tests: the
+  # preset `verify`, where clang-tidy reads the compiler's commands.
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            cxx: clang++-18
+          - os: macos-latest
+            cxx: clang++
+    runs-on: ${{ matrix.os }}
+    env:
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Install the pinned clang-format and clang-tidy
+        run: python -m pip install -r tools/requirements-lint.txt
+      - name: Install Doxygen
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+      - name: Install Doxygen
+        if: runner.os == 'macOS'
+        run: brew install doxygen
+      - name: Configure
+        run: cmake --preset verify -DTURBOREL_CPP_REQUIRE_DOXYGEN=ON
+      - name: Build, with clang-tidy
+        run: cmake --build --preset verify
+      - name: Every check and test
+        run: ctest --preset verify
+
+  # The build and tests with each supported compiler (D3), warnings as
+  # errors, in Debug and Release.
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [debug, release]
+        toolchain:
+          - { os: ubuntu-24.04, cxx: g++-13 }
+          - { os: ubuntu-24.04, cxx: g++-14 }
+          - { os: ubuntu-24.04, cxx: clang++-18 }
+          - { os: macos-latest, cxx: clang++ }
+          - { os: windows-latest, cxx: cl }
+    runs-on: ${{ matrix.toolchain.os }}
+    env:
+      CXX: ${{ matrix.toolchain.cxx }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build and test
+        run: cmake --workflow --preset ${{ matrix.preset }}
+
+  sanitizers:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-24.04, cxx: g++-14 }
+          - { os: ubuntu-24.04, cxx: clang++-18 }
+          - { os: macos-latest, cxx: clang++ }
+    runs-on: ${{ matrix.os }}
+    env:
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # AddressSanitizer fails to start under the many bits of address
+      # randomization recent Linux kernels use.
+      - name: Fewer bits of address randomization
+        if: runner.os == 'Linux'
+        run: sudo sysctl vm.mmap_rnd_bits=28
+      - name: Tests under AddressSanitizer and UndefinedBehaviorSanitizer
+        run: cmake --workflow --preset asan-ubsan
+
+  coverage:
+    runs-on: ubuntu-24.04
+    env:
+      CXX: clang++-18
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Coverage against its floors
+        run: cmake --workflow --preset coverage

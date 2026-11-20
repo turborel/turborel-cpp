@@ -1,0 +1,16 @@
+# Dependabot follows the actions the workflows pin, and the pinned
+# clang-format and clang-tidy (RULES.md D8). Catch2's pin in
+# cmake/TurborelDependencies.cmake is raised by hand, as Dependabot does
+# not read CMake (D7).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels: ["dependencies", "area/ci"]
+  - package-ecosystem: pip
+    directory: /tools
+    schedule:
+      interval: weekly
+    labels: ["dependencies", "area/build"]

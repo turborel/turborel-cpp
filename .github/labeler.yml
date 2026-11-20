@@ -1,0 +1,67 @@
+area/codec:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/value*", "src/value*"]
+
+area/transport:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/transport*", "src/transport*"]
+
+area/auth:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/auth*", "src/auth*"]
+
+area/tls:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/tls*", "src/tls*"]
+
+area/session:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/session*", "src/session*", "include/turborel/connection*", "src/connection*", "include/turborel/error*", "src/error*"]
+
+area/statements:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/statement*", "src/statement*", "include/turborel/rows*", "src/rows*"]
+
+area/lobs:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/lob*", "src/lob*"]
+
+area/copy:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/copy*", "src/copy*", "include/turborel/import*", "src/import*", "include/turborel/export*", "src/export*"]
+
+area/settings:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/settings*", "src/settings*"]
+
+area/pipeline:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/pipeline*", "src/pipeline*"]
+
+area/pool:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/pool*", "src/pool*", "include/turborel/agent*", "src/agent*"]
+
+area/api:
+  - changed-files:
+      - any-glob-to-any-file: ["include/turborel/turborel.hpp"]
+
+area/test:
+  - changed-files:
+      - any-glob-to-any-file: ["test/**"]
+
+area/doc:
+  - changed-files:
+      - any-glob-to-any-file: ["doc/**", "README.md", "RULES.md", "CONFORMANCE.md", "TODO.md", "AGENTS.md", "CLAUDE.md", "CONTRIBUTING.md", "SECURITY.md", "TRADEMARK.md", "VERSIONING.md"]
+
+area/ci:
+  - changed-files:
+      - any-glob-to-any-file: [".github/**", ".githooks/**"]
+
+area/build:
+  - changed-files:
+      - any-glob-to-any-file: ["CMakeLists.txt", "CMakePresets.json", "cmake/**", ".clang-format", ".clang-tidy", "test/.clang-tidy", "tools/**"]
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: ["cmake/TurborelDependencies.cmake", "tools/requirements-lint.txt"]

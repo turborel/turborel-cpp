@@ -1,0 +1,3 @@
+# Text files are checked out ending lines with LF on every platform, as
+# clang-format and the source checks read them by their lines.
+* text=auto eol=lf

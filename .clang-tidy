@@ -1,0 +1,54 @@
+# R-LINT-2: clang-tidy, of the version RULES.md D8 pins, with the C++ Core
+# Guidelines', modernize, bugprone and the other strict groups on, every
+# finding an error. Each check left off says why. test/.clang-tidy relaxes
+# what Catch2's macros cannot meet.
+---
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  google-build-using-namespace,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -misc-non-private-member-variables-in-classes
+# modernize-use-trailing-return-type: a style, not a defect; the standard
+#   library and the Core Guidelines write return types first.
+# readability-identifier-length: `e` and `i` are clearer than longer names
+#   in a short scope; review judges names (R-STYLE-3).
+# cppcoreguidelines-avoid-magic-numbers: an alias of readability-magic-
+#   numbers, which stays on (R-CONST-1).
+# misc-non-private-member-variables-in-classes: a struct of public fields,
+#   as turborel::failure, is an aggregate by design (Core Guidelines C.2).
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*/(include|src|test)/.*'
+FormatStyle: file
+CheckOptions:
+  # R-SIZE-1 and R-SIZE-3.
+  readability-function-size.LineThreshold: 50
+  readability-function-size.ParameterThreshold: 5
+  # R-CF-2.
+  readability-function-cognitive-complexity.Threshold: 15
+  # R-STYLE-3: the standard library's casing.
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.ClassCase: lower_case
+  readability-identifier-naming.StructCase: lower_case
+  readability-identifier-naming.EnumCase: lower_case
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.MemberCase: lower_case
+  readability-identifier-naming.PrivateMemberSuffix: _
+  readability-identifier-naming.ConstexprVariableCase: lower_case
+  readability-identifier-naming.EnumConstantCase: lower_case
+  readability-identifier-naming.TemplateParameterCase: CamelCase
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+...

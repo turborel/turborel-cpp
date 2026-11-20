@@ -1,0 +1,20 @@
+# R-STYLE-1: every C++ source is formatted by clang-format, of the version
+# RULES.md D8 pins. LLVM's style, wider, so a citation or a message rarely
+# has to break.
+---
+Language: Cpp
+BasedOnStyle: LLVM
+Standard: c++20
+ColumnLimit: 120
+IndentWidth: 2
+AccessModifierOffset: -2
+AllowShortFunctionsOnASingleLine: All
+AlwaysBreakTemplateDeclarations: Yes
+DerivePointerAlignment: false
+PointerAlignment: Left
+FixNamespaceComments: true
+IncludeBlocks: Preserve
+InsertBraces: true
+InsertNewlineAtEOF: true
+SortIncludes: CaseSensitive
+...
