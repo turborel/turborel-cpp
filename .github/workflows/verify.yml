@@ -35,6 +35,10 @@ jobs:
       CXX: ${{ matrix.cxx }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Compiler, linker, CMake, Catch2 and CTest failures become annotations,
+      # which show on the commit and can be read without the logs.
+      - name: Report failures as annotations
+        run: echo "::add-matcher::.github/problem-matchers.json"
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"
@@ -71,6 +75,10 @@ jobs:
       CXX: ${{ matrix.toolchain.cxx }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Compiler, linker, CMake, Catch2 and CTest failures become annotations,
+      # which show on the commit and can be read without the logs.
+      - name: Report failures as annotations
+        run: echo "::add-matcher::.github/problem-matchers.json"
       - name: Build and test
         run: cmake --workflow --preset ${{ matrix.preset }}
 
@@ -87,6 +95,10 @@ jobs:
       CXX: ${{ matrix.cxx }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Compiler, linker, CMake, Catch2 and CTest failures become annotations,
+      # which show on the commit and can be read without the logs.
+      - name: Report failures as annotations
+        run: echo "::add-matcher::.github/problem-matchers.json"
       # AddressSanitizer fails to start under the many bits of address
       # randomization recent Linux kernels use.
       - name: Fewer bits of address randomization
@@ -101,5 +113,9 @@ jobs:
       CXX: clang++-18
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Compiler, linker, CMake, Catch2 and CTest failures become annotations,
+      # which show on the commit and can be read without the logs.
+      - name: Report failures as annotations
+        run: echo "::add-matcher::.github/problem-matchers.json"
       - name: Coverage against its floors
         run: cmake --workflow --preset coverage

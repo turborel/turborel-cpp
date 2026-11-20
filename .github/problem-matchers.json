@@ -1,0 +1,89 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "turborel-cpp-compiler",
+      "pattern": [
+        {
+          "regexp": "^(.+?):(\\d+):(\\d+):\\s+(warning|error|fatal error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      ]
+    },
+    {
+      "owner": "turborel-cpp-doxygen",
+      "pattern": [
+        {
+          "regexp": "^(.+?):(\\d+):\\s+(warning|error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "severity": 3,
+          "message": 4
+        }
+      ]
+    },
+    {
+      "owner": "turborel-cpp-msvc",
+      "pattern": [
+        {
+          "regexp": "^(.+?)\\((\\d+),?(\\d+)?\\):\\s+(error|warning)\\s+(\\w+):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
+      ]
+    },
+    {
+      "owner": "turborel-cpp-linker",
+      "pattern": [
+        {
+          "regexp": "^(.*(?:undefined reference to|ld: error|ld returned).*)$",
+          "message": 1
+        }
+      ]
+    },
+    {
+      "owner": "turborel-cpp-cmake",
+      "pattern": [
+        {
+          "regexp": "^CMake Error at (.+?):(\\d+)",
+          "file": 1,
+          "line": 2
+        },
+        {
+          "regexp": "^\\s+(\\S.*)$",
+          "message": 1
+        }
+      ]
+    },
+    {
+      "owner": "turborel-cpp-catch2",
+      "pattern": [
+        {
+          "regexp": "^(.+?):(\\d+): FAILED:$",
+          "file": 1,
+          "line": 2
+        },
+        {
+          "regexp": "^\\s*(\\S.*)$",
+          "message": 1
+        }
+      ]
+    },
+    {
+      "owner": "turborel-cpp-ctest",
+      "pattern": [
+        {
+          "regexp": "^\\s*\\d+ - (.+) \\((Failed|Not Run|Timeout|SEGFAULT|Subprocess aborted|Exception)\\)$",
+          "message": 1
+        }
+      ]
+    }
+  ]
+}
