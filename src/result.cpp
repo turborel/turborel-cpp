@@ -28,11 +28,11 @@ value row::at(std::size_t column) const {
 
 void result::freer::operator()(trl_result* result) const noexcept { trl_result_free(result); }
 
-result::result(trl_result* result) noexcept : owned_{result}, view_{result} {}
+result::result(trl_result* made) noexcept : owned_{made}, view_{made} {}
 
-result result::borrowed(const trl_result* result) noexcept {
+result result::borrowed(const trl_result* lent) noexcept {
   turborel::result view{nullptr};
-  view.view_ = result;
+  view.view_ = lent;
   return view;
 }
 
@@ -48,6 +48,7 @@ std::vector<column> result::columns() const {
         .type = data_type{trl_result_column_type(view_, i)},
         .declared_name = detail::maybe(trl_result_column_type_name(view_, i)),
         .type_written = detail::view(trl_result_column_type_written(view_, i)),
+        .not_null = trl_result_column_not_null(view_, i),
     });
   }
   return columns;

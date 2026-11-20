@@ -12,7 +12,6 @@
 #include <turborel/statement.hpp>
 #include <turborel/turborel.h>
 
-#include <cstddef>
 #include <cstdint>
 #include <utility>
 

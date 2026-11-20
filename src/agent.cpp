@@ -3,6 +3,7 @@
 
 #include <turborel/agent.hpp>
 
+#include "batches.hpp"
 #include "capi.hpp"
 #include "connection_state.hpp"
 
@@ -13,6 +14,7 @@
 
 #include <cstddef>
 #include <exception>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -34,7 +36,7 @@ struct agent_state {
   /// stream, which the agent cannot keep.
   bool over_stream{};
   /// The agent.
-  owner<trl_agent, trl_agent_free> agent;
+  owner<trl_agent, trl_agent_free> handle;
 };
 
 } // namespace detail
@@ -98,7 +100,7 @@ agent::agent(connector make) : state_{std::make_unique<detail::agent_state>()} {
   state_->make = std::move(make);
   trl_agent* made = nullptr;
   detail::check(trl_agent_new(make_one, state_.get(), &made));
-  state_->agent.reset(made);
+  state_->handle.reset(made);
 }
 
 agent::agent(connector make, connection first) : state_{std::make_unique<detail::agent_state>()} {
@@ -106,7 +108,7 @@ agent::agent(connector make, connection first) : state_{std::make_unique<detail:
   trl_agent* made = nullptr;
   const trl_status status = trl_agent_connected(make_one, state_.get(), detail::conn_access::release(first), &made);
   detail::check(status);
-  state_->agent.reset(made);
+  state_->handle.reset(made);
 }
 
 agent::agent(agent&&) noexcept = default;
@@ -115,34 +117,56 @@ agent& agent::operator=(agent&&) noexcept = default;
 
 agent::~agent() = default;
 
-result agent::query(const std::string& sql) {
-  trl_result* made = nullptr;
-  const trl_status status = trl_agent_query(state_->agent.get(), sql.c_str(), &made);
-  result outcome{made};
-  if (std::exchange(state_->over_stream, false)) {
+namespace {
+
+/// What an agent's statement came to: what its connector threw, CONNECT's
+/// refusal of the driver's error, a connection the agent cannot keep, or
+/// the agent's failure; else its outcome.
+result finished(detail::agent_state& state, trl_status status, result outcome) {
+  if (std::exchange(state.over_stream, false)) {
     detail::raise_misuse("the agent's connector made a connection over the program's own stream, which it cannot keep");
   }
-  if (state_->thrown) {
+  if (state.thrown) {
     try {
-      std::rethrow_exception(std::exchange(state_->thrown, nullptr));
+      std::rethrow_exception(std::exchange(state.thrown, nullptr));
     } catch (const error& e) {
       throw error{refusal_of(e.details())};
     }
   }
-  detail::check(status, trl_agent_failure(state_->agent.get()));
+  detail::check(status, trl_agent_failure(state.handle.get()));
   return outcome;
 }
 
-std::optional<std::string_view> agent::current_name() const noexcept {
-  return detail::maybe(trl_agent_current_name(state_->agent.get()));
+} // namespace
+
+result agent::query(const std::string& sql) {
+  trl_result* made = nullptr;
+  const trl_status status = trl_agent_query(state_->handle.get(), sql.c_str(), &made);
+  return finished(*state_, status, result{made});
 }
 
-bool agent::has_current() const noexcept { return trl_agent_current(state_->agent.get()) != nullptr; }
+result agent::query_batches(const std::string& sql, const std::function<void(const result&)>& handler) {
+  detail::batches context{.handler = &handler, .thrown = nullptr};
+  trl_result* made = nullptr;
+  const trl_status status =
+      trl_agent_query_batches(state_->handle.get(), sql.c_str(), detail::batch_to_handler, &context, &made);
+  result outcome{made};
+  if (context.thrown) {
+    std::rethrow_exception(context.thrown);
+  }
+  return finished(*state_, status, std::move(outcome));
+}
 
-std::size_t agent::size() const noexcept { return trl_agent_count(state_->agent.get()); }
+std::optional<std::string_view> agent::current_name() const noexcept {
+  return detail::maybe(trl_agent_current_name(state_->handle.get()));
+}
+
+bool agent::has_current() const noexcept { return trl_agent_current(state_->handle.get()) != nullptr; }
+
+std::size_t agent::size() const noexcept { return trl_agent_count(state_->handle.get()); }
 
 void agent::terminate() {
-  detail::check(trl_agent_terminate(state_->agent.get()), trl_agent_failure(state_->agent.get()));
+  detail::check(trl_agent_terminate(state_->handle.get()), trl_agent_failure(state_->handle.get()));
 }
 
 } // namespace turborel

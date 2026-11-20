@@ -6,6 +6,7 @@
 #include <turborel/connection.hpp>
 #include <turborel/statement.hpp>
 
+#include "batches.hpp"
 #include "capi.hpp"
 #include "connection_state.hpp"
 
@@ -24,17 +25,7 @@
 
 namespace turborel {
 
-namespace {
-
-/// A batch handler's context: the program's handler, and what it threw.
-struct batches {
-  const std::function<void(const result&)>* handler;
-  std::exception_ptr thrown;
-};
-
-/// Gives a batch to the program's handler, as turborel-c calls it, keeping
-/// what the handler throws (R-RAII-2).
-void batch_to_handler(void* context, const trl_result* batch) noexcept {
+void detail::batch_to_handler(void* context, const trl_result* batch) noexcept {
   auto* held = static_cast<batches*>(context);
   if (held->thrown) {
     return;
@@ -45,8 +36,6 @@ void batch_to_handler(void* context, const trl_result* batch) noexcept {
     held->thrown = std::current_exception();
   }
 }
-
-} // namespace
 
 void statement::freer::operator()(trl_statement* made) const noexcept { trl_statement_free(made); }
 
@@ -71,6 +60,7 @@ std::vector<column> statement::columns() const {
         .type = data_type{trl_statement_column_type(get(), i)},
         .declared_name = detail::maybe(trl_statement_column_type_name(get(), i)),
         .type_written = detail::view(trl_statement_column_type_written(get(), i)),
+        .not_null = std::nullopt,
     });
   }
   return columns;
@@ -133,9 +123,9 @@ result connection::query_text(const std::string& sql, const std::vector<std::opt
 }
 
 result connection::query_batches(const std::string& sql, const std::function<void(const result&)>& handler) {
-  batches context{.handler = &handler, .thrown = nullptr};
+  detail::batches context{.handler = &handler, .thrown = nullptr};
   trl_result* made = nullptr;
-  const trl_status status = trl_query_batches(get(), sql.c_str(), batch_to_handler, &context, &made);
+  const trl_status status = trl_query_batches(get(), sql.c_str(), detail::batch_to_handler, &context, &made);
   result outcome{made};
   if (context.thrown) {
     std::rethrow_exception(context.thrown);

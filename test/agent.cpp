@@ -195,3 +195,27 @@ TEST_CASE("a connector's failure refuses CONNECT, saying why") {
   CHECK(other.size() == 1);
   CHECK(other.current_name() == "A");
 }
+
+/// Verifies: [CLIENT The SQL-agent] A statement the agent sends to its
+/// current connection gives a query's rows a batch at a time, as they
+/// come; what the handler throws is thrown, and a connector's failure on
+/// CONNECT refuses it as query() does [CLIENT Running statements].
+TEST_CASE("the agent gives a query's rows a batch at a time") {
+  LIVE_OR_SKIP();
+  table();
+  turborel::agent agent{dial, test::live::trusted()};
+  std::size_t rows = 0;
+  static_cast<void>(agent.query_batches("WITH RECURSIVE T(N) AS (VALUES CAST(1 AS INTEGER) UNION ALL SELECT N + 1 FROM "
+                                        "T WHERE N < 20000) SELECT N FROM T",
+                                        [&rows](const turborel::result& batch) { rows += batch.size(); }));
+  CHECK(rows == 20000);
+  CHECK_THROWS_AS(agent.query_batches("VALUES 1", [](const turborel::result&) { throw std::runtime_error{"stop"}; }),
+                  std::runtime_error);
+  static_cast<void>(agent.query("COMMIT"));
+  try {
+    static_cast<void>(agent.query_batches("CONNECT TO '127.0.0.1:1' AS 'C'", [](const turborel::result&) {}));
+    FAIL("CONNECT to no server succeeded");
+  } catch (const turborel::error& e) {
+    CHECK(e.sqlstate() == "08001");
+  }
+}

@@ -33,8 +33,12 @@ function(turborel_cpp_link_c target)
   FetchContent_MakeAvailable(turborel)
   foreach(c_target IN ITEMS turborel turborel_objects)
     if(TARGET ${c_target})
-      # Not ours: built with its own warnings, which never fail our build.
+      # Not ours: built with its own warnings, which never fail our build,
+      # though turborel-c makes them errors of its own, and compilers it does
+      # not build with warn where it does not, as GCC 13 and 14 do at -O3.
       set_target_properties(${c_target} PROPERTIES COMPILE_WARNING_AS_ERROR OFF)
+      target_compile_options(${c_target} PRIVATE $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-error>
+                                                 $<$<C_COMPILER_ID:MSVC>:/WX->)
     endif()
   endforeach()
   target_link_libraries(${target} PUBLIC turborel::turborel)

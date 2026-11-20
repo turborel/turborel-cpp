@@ -288,6 +288,8 @@ TEST_CASE("a column's declared type is told") {
   CHECK(columns.at(2).declared_name == "DOUBLE PRECISION");
   const turborel::statement select = conn.prepare("SELECT I FROM ST4");
   CHECK(select.columns().at(0).declared_name == "INTEGER");
+  CHECK(select.columns().at(0).not_null == std::nullopt);
+  CHECK(read.columns().at(0).not_null == false);
 }
 
 /// Verifies: [CLIENT Prepared statements] Text parameters, as libpq's

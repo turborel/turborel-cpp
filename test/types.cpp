@@ -41,7 +41,8 @@ shown shown_of(const std::string& name) {
 /// Verifies: [PROTOCOL Data types] Tags 1 to 15 are read with what each
 /// writes after it: lengths and units, precisions and scales, a plug-in's
 /// name, an interval's qualifier; a column's name and type as SQL writes
-/// it; a plug-in's type the client does not have read by its name.
+/// it; a plug-in's type the client does not have read by its name; a
+/// column's named and not-null flags [PROTOCOL Composite fields].
 TEST_CASE("the scalar types are read with their parameters") {
   const turborel::result character = described("description-character");
   const turborel::column c = column_of(character);
@@ -50,6 +51,13 @@ TEST_CASE("the scalar types are read with their parameters") {
   CHECK(c.type.length() == 4);
   CHECK(c.type_written == "CHARACTER(4)");
   CHECK_FALSE(c.declared_name.has_value());
+  CHECK(c.not_null == false);
+  const std::vector<turborel::column> two = described("description").columns();
+  REQUIRE(two.size() == 2);
+  CHECK(two.at(0).name == "K");
+  CHECK(two.at(0).not_null == true);
+  CHECK(two.at(1).name == std::nullopt);
+  CHECK(two.at(1).not_null == false);
   const turborel::result exact = described("description-exact");
   CHECK(column_of(exact).type.precision() == 9);
   CHECK(column_of(exact).type.scale() == 2);

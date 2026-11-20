@@ -200,6 +200,23 @@ bytes octets_of(std::string_view text) {
   return {view.begin(), view.end()};
 }
 
+std::optional<std::string> variable(const char* name) {
+#ifdef _WIN32
+  char* value = nullptr;
+  std::size_t length = 0;
+  if (_dupenv_s(&value, &length, name) != 0 || value == nullptr) {
+    return std::nullopt;
+  }
+  std::string copied{value};
+  std::free(value); // NOLINT(cppcoreguidelines-no-malloc): _dupenv_s's copy, which it says to free.
+  return copied;
+#else
+  // NOLINTNEXTLINE(concurrency-mt-unsafe): the tests that read one run on one thread.
+  const char* value = std::getenv(name);
+  return value == nullptr ? std::nullopt : std::optional<std::string>{value};
+#endif
+}
+
 void set_variable(const char* name, const char* value) {
 #ifdef _WIN32
   static_cast<void>(_putenv_s(name, value == nullptr ? "" : value));

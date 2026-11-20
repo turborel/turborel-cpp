@@ -37,6 +37,10 @@ struct column {
   /// Its type as SQL writes it: as declared, where told, else as its tag
   /// says, as NUMERIC(10,0) of INTEGER.
   std::string_view type_written;
+  /// Whether it is NOT NULL, as a Description tells it [PROTOCOL Composite
+  /// fields]; none of a prepared statement's column, whose flag
+  /// turborel-c's API does not give.
+  std::optional<bool> not_null;
 };
 
 /// A row of a result: a view, valid while its result is.
@@ -175,14 +179,14 @@ public:
   };
 
   /// A result of turborel-c's, which it owns and frees.
-  /// @param result The result.
-  explicit result(trl_result* result) noexcept;
+  /// @param made The result.
+  explicit result(trl_result* made) noexcept;
 
   /// A view of a result turborel-c lends, as a batch to a handler, valid
   /// for the call alone.
-  /// @param result The result.
+  /// @param lent The result.
   /// @return The view.
-  [[nodiscard]] static result borrowed(const trl_result* result) noexcept;
+  [[nodiscard]] static result borrowed(const trl_result* lent) noexcept;
 
   /// Whether it is a query's, of columns and rows.
   /// @return Whether it is.

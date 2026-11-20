@@ -306,9 +306,10 @@ public:
   result query(const std::string& sql);
 
   /// Runs one statement with its `?` parameters: prepared, executed with
-  /// `values`, then deallocated.
+  /// `first` and `values`, then deallocated.
   /// @param sql The statement.
-  /// @param values Its parameters' values, as params::add takes them.
+  /// @param first Its first parameter's value, as params::add takes it.
+  /// @param values The rest of its parameters' values.
   /// @return Its result.
   /// @throws turborel::error The statement's failure.
   template <typename First, typename... Rest>

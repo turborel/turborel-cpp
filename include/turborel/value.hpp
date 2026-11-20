@@ -157,8 +157,8 @@ private:
 class TURBOREL_CPP_EXPORT value {
 public:
   /// A view of turborel-c's value.
-  /// @param value The value, or null, read as the null value.
-  explicit value(const trl_value* value) noexcept : value_{value} {}
+  /// @param viewed The value, or null, read as the null value.
+  explicit value(const trl_value* viewed) noexcept : value_{viewed} {}
 
   /// Its kind, as its tag says [PROTOCOL Values].
   /// @return Its kind.

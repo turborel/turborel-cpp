@@ -151,6 +151,11 @@ turborel::result native(const bytes& description, std::initializer_list<bytes> r
 /// @return Its octets.
 bytes octets_of(std::string_view text);
 
+/// The process's environment variable `name`, as the platform reads it.
+/// @param name The variable.
+/// @return Its value; none if it is not set.
+std::optional<std::string> variable(const char* name);
+
 /// Sets the process's environment variable `name` to `value`, or unsets
 /// it of none, as the platform does; the tests that do run on one thread.
 /// @param name The variable.

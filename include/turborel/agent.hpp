@@ -65,6 +65,17 @@ public:
   ///   current connection.
   result query(const std::string& sql);
 
+  /// Runs one statement as query() does, a query's rows given to `handler`
+  /// a batch at a time, as they come [CLIENT Running statements].
+  /// @param sql The statement.
+  /// @param handler Given each batch, on this thread; what it throws is
+  ///   thrown once the statement's replies are read, and it is given no
+  ///   more batches after.
+  /// @return A query's columns, its rows given to `handler`, or another
+  ///   statement's completion.
+  /// @throws turborel::error As query() does.
+  result query_batches(const std::string& sql, const std::function<void(const result&)>& handler);
+
   /// The current connection's name.
   /// @return It; none for the default connection, or for none.
   [[nodiscard]] std::optional<std::string_view> current_name() const noexcept;

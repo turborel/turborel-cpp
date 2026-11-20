@@ -87,8 +87,10 @@ public:
   cursor(const cursor&) = delete;
   cursor& operator=(const cursor&) = delete;
   /// Moves the cursor.
+  /// @param other The cursor moved from, left closed.
   cursor(cursor&& other) noexcept;
   /// Moves the cursor, closing the one this held.
+  /// @param other The cursor moved from, left closed.
   /// @return This.
   cursor& operator=(cursor&& other) noexcept;
   /// Closes the cursor if it is open.

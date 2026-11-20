@@ -35,6 +35,8 @@ bool trl_faults_fired(void);
 }
 #endif
 
+#ifdef TURBOREL_CPP_FAULTS
+
 namespace {
 
 /// A session over a scripted stream: the login, a query and its rows, a
@@ -69,6 +71,8 @@ void session() {
 }
 
 } // namespace
+
+#endif
 
 /// Verifies: [DESIGN] D14 Each allocation turborel-c makes in a session,
 /// failed in turn, fails its call as std::bad_alloc, or as the driver's

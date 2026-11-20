@@ -22,7 +22,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -550,14 +549,12 @@ TEST_CASE("the files are the home's unless named") {
 #else
   const char* const home_variable = "HOME";
 #endif
-  // NOLINTNEXTLINE(concurrency-mt-unsafe): read on the test's one thread, and set back.
-  const char* const was = std::getenv(home_variable);
-  const std::string kept = was == nullptr ? "" : was;
+  const std::optional<std::string> was = test::variable(home_variable);
   test::set_variable(home_variable, home.c_str());
   turborel::options named;
   named.set(turborel::setting::service, "mine");
   const turborel::settings at_home = turborel::settings::resolve(named);
-  test::set_variable(home_variable, was == nullptr ? nullptr : kept.c_str());
+  test::set_variable(home_variable, was ? was->c_str() : nullptr);
   CHECK(host_is(at_home, 0, "db1", turborel::default_port));
   CHECK(at_home.user() == "ann");
   CHECK(at_home.password_for(0) == "at home");
