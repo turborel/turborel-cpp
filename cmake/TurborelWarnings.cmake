@@ -21,7 +21,12 @@ set(TURBOREL_CPP_GNU_WARNINGS
     -Wformat=2
     -Wimplicit-fallthrough
     -Wfloat-equal
-    -Wextra-semi)
+    -Wextra-semi
+    # -Wextra's -Wmissing-field-initializers is off: GCC and Clang before 19
+    # warn of a designated initializer that leaves a member to its default
+    # member initializer, C++20's way of naming only the fields that differ,
+    # which every member here has.
+    -Wno-missing-field-initializers)
 
 # Warnings only GCC has.
 set(TURBOREL_CPP_GCC_WARNINGS -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wlogical-op
