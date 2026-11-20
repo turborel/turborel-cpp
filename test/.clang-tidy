@@ -25,8 +25,4 @@ Checks: >
 #   Catch2's SKIP, a macro, where the test is.
 # clang-analyzer-optin.core.EnumCastOutOfRange: Catch2's own flags, in
 #   its headers, combined as it means them.
-CheckOptions:
-  # The platform's own headers, which declare what POSIX's do and differ
-  # from one system to the next (RULES.md D13).
-  misc-include-cleaner.IgnoreHeaders: '.*/__chrono/.*;.*/__type_traits/.*;.*/bits/.*;.*/sys/_.*;.*/_stdlib\.h;.*/sys/signal\.h;.*/sys/poll\.h;.*/sys/fcntl\.h;.*/asm-generic/.*;.*/linux/.*'
 ...

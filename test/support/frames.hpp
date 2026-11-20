@@ -73,6 +73,9 @@ public:
   writer& texts(std::initializer_list<std::string_view> values);
   /// Octets as they are, with no count.
   writer& octets(std::span<const std::byte> value);
+  /// The body written so far, as a value's bytes are.
+  /// @return The body.
+  [[nodiscard]] const bytes& body() const noexcept { return body_; }
   /// The frame of `kind` and this body.
   [[nodiscard]] bytes frame(char kind) const;
 
@@ -99,7 +102,7 @@ public:
   explicit scripted(bytes server, bool bounds = false);
 
   std::optional<std::size_t> read(std::span<std::byte> into) override;
-  std::optional<std::size_t> write(std::span<const std::byte> bytes) override;
+  std::optional<std::size_t> write(std::span<const std::byte> octets) override;
   void close() noexcept override;
   [[nodiscard]] bool bounds() const noexcept override { return bounds_; }
   bool bound(std::chrono::milliseconds wait) noexcept override;

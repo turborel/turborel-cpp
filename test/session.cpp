@@ -253,7 +253,7 @@ public:
     at_ += count;
     return count;
   }
-  std::optional<std::size_t> write(std::span<const std::byte> bytes) override { return bytes.size(); }
+  std::optional<std::size_t> write(std::span<const std::byte> octets) override { return octets.size(); }
   void close() noexcept override {}
   [[nodiscard]] bool bounds() const noexcept override { return true; }
 
@@ -286,7 +286,7 @@ public:
     return count;
   }
 
-  std::optional<std::size_t> write(std::span<const std::byte> bytes) override {
+  std::optional<std::size_t> write(std::span<const std::byte> octets) override {
     if (writes_++ > 0) {
       if (how_ == fails::write_throws) {
         throw std::runtime_error{"the write broke"};
@@ -295,7 +295,7 @@ public:
         return std::nullopt;
       }
     }
-    return bytes.size();
+    return octets.size();
   }
 
   void close() noexcept override {}

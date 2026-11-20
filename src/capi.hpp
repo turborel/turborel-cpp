@@ -51,6 +51,9 @@ inline constexpr std::int32_t data_sqlcode = -301;
 inline constexpr std::string_view invalid_text_sqlstate = "22018";
 /// SQLSTATE 22003, a value out of the range of the type asked for.
 inline constexpr std::string_view out_of_range_sqlstate = "22003";
+/// SQLSTATE 22032, JSON text that is not valid, or a JSON value no JSON
+/// text writes [PROTOCOL JSON values].
+inline constexpr std::string_view invalid_json_sqlstate = "22032";
 
 /// The driver's failure of a failure turborel-c keeps: every field copied,
 /// so it outlives the handle.

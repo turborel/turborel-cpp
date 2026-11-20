@@ -126,7 +126,7 @@ TEST_CASE("handles are moved as values") {
 /// Verifies: [DESIGN] D2 Parameters are added of each C++ type the driver
 /// maps a value of, the null value of std::nullopt, nullptr or an empty
 /// std::optional, a value of a result copied; JSON text no JSON value is
-/// fails (22018); the list cleared is empty.
+/// fails (22032); the list cleared is empty.
 TEST_CASE("parameters are added of each C++ type") {
   const turborel::result rows = three();
   turborel::params values;
@@ -151,7 +151,7 @@ TEST_CASE("parameters are added of each C++ type") {
   values.add(turborel::uuid{}).add(turborel::json_text{R"({"a":[1,"x"]})"}).add(turborel::xml_text{"<a/>"});
   values.add(rows.at(0).at(0));
   CHECK(values.size() == 21);
-  CHECK(sqlstate_of([&values] { values.add(turborel::json_text{"{"}); }) == "22018");
+  CHECK(sqlstate_of([&values] { values.add(turborel::json_text{"{"}); }) == "22032");
   CHECK(values.size() == 21);
   values.clear();
   CHECK(values.size() == 0);

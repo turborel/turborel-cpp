@@ -96,14 +96,14 @@ public:
     return got < 0 ? std::nullopt : std::optional<std::size_t>{static_cast<std::size_t>(got)};
   }
 
-  std::optional<std::size_t> write(std::span<const std::byte> bytes) override {
+  std::optional<std::size_t> write(std::span<const std::byte> octets) override {
     if (rewrite_) {
-      test::bytes changed{bytes.begin(), bytes.end()};
+      test::bytes changed{octets.begin(), octets.end()};
       std::exchange(rewrite_, nullptr)(changed);
       const ssize_t sent = ::send(socket_, changed.data(), changed.size(), 0);
-      return sent < 0 ? std::nullopt : std::optional<std::size_t>{bytes.size()};
+      return sent < 0 ? std::nullopt : std::optional<std::size_t>{octets.size()};
     }
-    const ssize_t sent = ::send(socket_, bytes.data(), bytes.size(), 0);
+    const ssize_t sent = ::send(socket_, octets.data(), octets.size(), 0);
     return sent < 0 ? std::nullopt : std::optional<std::size_t>{static_cast<std::size_t>(sent)};
   }
 
@@ -231,9 +231,10 @@ public:
     return got;
   }
 
-  std::optional<std::size_t> write(std::span<const std::byte> bytes) override {
+  std::optional<std::size_t> write(std::span<const std::byte> octets) override {
     std::size_t sent = 0;
-    return SSL_write_ex(ssl_, bytes.data(), bytes.size(), &sent) == 1 ? std::optional<std::size_t>{sent} : std::nullopt;
+    return SSL_write_ex(ssl_, octets.data(), octets.size(), &sent) == 1 ? std::optional<std::size_t>{sent}
+                                                                        : std::nullopt;
   }
 
   void close() noexcept override {

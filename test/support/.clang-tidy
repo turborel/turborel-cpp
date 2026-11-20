@@ -1,0 +1,11 @@
+# The tests' support: the tests' clang-tidy, less the include checker.
+---
+InheritParentConfig: true
+Checks: >
+  -misc-include-cleaner
+# misc-include-cleaner: the support starts processes, opens sockets and
+#   makes certificates by POSIX's, Windows's and OpenSSL's own names, which
+#   each system declares in headers of its own, apart from the public ones
+#   a program includes, and differently on each, so the check cannot map
+#   them the same on Linux and macOS (RULES.md D13).
+...

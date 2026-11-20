@@ -286,7 +286,7 @@ TEST_CASE("UUIDs are read and sent") {
 /// number, a decimal floating point one, a datetime and a string theirs;
 /// text nesting arrays and objects 128 deep is taken, 129 deep refused
 /// before sending (SQLCODE -900, SQLSTATE 0A000), text no JSON value is
-/// refused as such (22018) [PROTOCOL Values].
+/// refused as such (22032) [PROTOCOL Values].
 TEST_CASE("JSON values are read and sent, every node kept") {
   LIVE_OR_SKIP();
   turborel::connection conn = test::live::trusted();
@@ -306,8 +306,8 @@ TEST_CASE("JSON values are read and sent, every node kept") {
     CHECK(e.sqlcode() == -900);
     CHECK(e.sqlstate() == "0A000");
   }
-  CHECK(sqlstate_of([&values] { values.add(turborel::json_text{R"({"a":[}"})"}); }) == "22018");
+  CHECK(sqlstate_of([&values] { values.add(turborel::json_text{R"({"a":[}"})"}); }) == "22032");
   const std::string quoted_brackets = R"({"a\"[[[":[)" + std::string(126, '[') + "}";
-  CHECK(sqlstate_of([&] { values.add(turborel::json_text{quoted_brackets}); }) == "22018");
+  CHECK(sqlstate_of([&] { values.add(turborel::json_text{quoted_brackets}); }) == "22032");
   CHECK(values.size() == 0);
 }

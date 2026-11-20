@@ -166,9 +166,9 @@ std::optional<std::size_t> scripted::read(std::span<std::byte> into) {
   return count;
 }
 
-std::optional<std::size_t> scripted::write(std::span<const std::byte> bytes) {
-  written_.insert(written_.end(), bytes.begin(), bytes.end());
-  return bytes.size();
+std::optional<std::size_t> scripted::write(std::span<const std::byte> octets) {
+  written_.insert(written_.end(), octets.begin(), octets.end());
+  return octets.size();
 }
 
 void scripted::close() noexcept { closed_ = true; }
@@ -230,10 +230,15 @@ void set_variable(const char* name, const char* value) {
 }
 
 bool has_zlib() {
+  // A turborel-c built with no zlib asks for no compression, and fails the
+  // request a compressed frame answers (SQLSTATE 0A000).
   try {
     turborel::connect_options compressed;
     compressed.ask_none().ask(turborel::capability::compression);
-    static_cast<void>(open_scripted(ready({"compression"}), compressed));
+    auto [conn, stream] = open_scripted(
+        joined({ready({"compression"}), frame("description"), frame("rows-compressed"), frame("complete")}),
+        compressed);
+    static_cast<void>(conn.query("SELECT K, V FROM T"));
     return true;
   } catch (const turborel::error&) {
     return false;

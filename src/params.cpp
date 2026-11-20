@@ -56,8 +56,8 @@ constexpr std::string_view beyond_sqlstate = "0A000";
 
 /// Whether JSON text nests more arrays and objects than Turborel takes,
 /// its strings' brackets aside. turborel-c refuses such text as it does
-/// text no JSON value is, so the driver tells the one from the other
-/// (RULES.md D8).
+/// text no JSON value is, TRL_INVALID_TEXT, so the driver tells the one
+/// from the other (RULES.md D8): -900/0A000 past the limit, else 22032.
 bool nests_too_deep(std::string_view text) noexcept {
   std::size_t depth = 0;
   bool quoted = false;
@@ -176,6 +176,13 @@ params& params::add(const json_text& json) {
         .sqlcode = beyond_sqlcode,
         .sqlstate = std::string{beyond_sqlstate},
         .message = "the JSON value nests arrays and objects past 128, Turborel's limit",
+    }};
+  }
+  if (status == TRL_INVALID_TEXT) {
+    throw error{failure{
+        .sqlcode = detail::data_sqlcode,
+        .sqlstate = std::string{detail::invalid_json_sqlstate},
+        .message = "the text is not JSON text",
     }};
   }
   added(status);

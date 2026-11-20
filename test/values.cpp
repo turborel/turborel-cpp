@@ -175,3 +175,18 @@ TEST_CASE("a value read as another kind fails as a misuse") {
   CHECK(misuse_of([&] { static_cast<void>(text.at(0).at(1)); }) == "TB910");
   CHECK(misuse_of([] { static_cast<void>(turborel::value{nullptr}.to_string()); }) == "TB910");
 }
+
+/// Verifies: [PROTOCOL JSON values] A JSON value that holds a datetime, or
+/// an approximate number that is not finite, has no JSON text: reading it
+/// as text fails (SQLCODE -301, SQLSTATE 22032), its stored form read as
+/// it is.
+TEST_CASE("a JSON value no JSON text writes fails as text") {
+  const test::bytes nan_document = test::writer{}.u8(1).u8(7).u64(0x7FF8000000000000ULL).body();
+  const test::bytes date_document = test::writer{}.u8(1).u8(9).u8(0).u64(0).u8(0).u8(0).u8(0).u8(0).body();
+  for (const test::bytes& document : {nan_document, date_document}) {
+    const turborel::result read =
+        test::native(test::frame("description-json"), {test::writer{}.u32(1).u32(1).u8(25).raw(document).frame('B')});
+    CHECK(misuse_of([&read] { static_cast<void>(read.at(0).at(0).json()); }) == "22032");
+    CHECK(read.at(0).at(0).bytes().size() == document.size());
+  }
+}

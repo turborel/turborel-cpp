@@ -8,8 +8,11 @@
 
 #include <turborel/connect.hpp>
 #include <turborel/connection.hpp>
+#include <turborel/cursor.hpp>
 #include <turborel/error.hpp>
+#include <turborel/params.hpp>
 #include <turborel/result.hpp>
+#include <turborel/statement.hpp>
 
 #include <catch2/catch_message.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -391,4 +394,17 @@ TEST_CASE("a JSON document of another version fails its request") {
   CHECK(failure_of([&conn] { static_cast<void>(conn.query("SELECT J FROM T")); }) == "-916 TB916");
   CHECK_FALSE(conn.lost());
   CHECK(conn.query("COMMIT").sqlstate() == "00000");
+}
+
+/// Verifies: [PROTOCOL Execute 'E'] A cursor of a number other than 0, which
+/// needs `cursors`, is refused before anything is sent where it was not
+/// granted (SQLSTATE 08006), the connection kept [PROTOCOL Capabilities].
+TEST_CASE("a numbered cursor needs cursors granted") {
+  auto [conn, stream] = test::open_scripted(test::joined({test::ready({}), test::frame("prepared")}), asking({}));
+  const turborel::statement prepared = conn.prepare("SELECT K FROM T WHERE K > ?");
+  const std::size_t before = stream->written().size();
+  CHECK(failure_of([&] { static_cast<void>(turborel::cursor::open(conn, prepared, turborel::params::of(1), 1, 7)); }) ==
+        "-919 08006");
+  CHECK(stream->written().size() == before);
+  CHECK_FALSE(conn.lost());
 }

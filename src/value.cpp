@@ -191,7 +191,15 @@ std::string value::json() const {
     wrong_kind("a JSON value");
   }
   return detail::written([this](char* out, std::size_t capacity, std::size_t* length) {
-    detail::check(trl_value_json_text(value_, out, capacity, length));
+    const trl_status status = trl_value_json_text(value_, out, capacity, length);
+    if (status == TRL_INVALID_TEXT) {
+      throw error{failure{
+          .sqlcode = detail::data_sqlcode,
+          .sqlstate = std::string{detail::invalid_json_sqlstate},
+          .message = "the JSON value holds a datetime, or an approximate number not finite, which no JSON text writes",
+      }};
+    }
+    detail::check(status);
   });
 }
 

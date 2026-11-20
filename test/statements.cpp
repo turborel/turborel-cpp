@@ -292,9 +292,10 @@ TEST_CASE("a column's declared type is told") {
   CHECK(read.columns().at(0).not_null == false);
 }
 
-/// Verifies: [CLIENT Prepared statements] Text parameters, as libpq's
-/// PQexecParams takes them, are assigned to each parameter's type by the
-/// server; a null among them.
+/// Verifies: [CLIENT Prepared statements] Parameters given as text, as
+/// turborel-c's trl_query_params takes them, are assigned to each
+/// parameter's type by the server, as SQL's CAST of the text; a null among
+/// them.
 TEST_CASE("parameters given as text are cast by the server") {
   LIVE_OR_SKIP();
   turborel::connection conn = test::live::trusted();
