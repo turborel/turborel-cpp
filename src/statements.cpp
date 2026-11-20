@@ -94,19 +94,11 @@ result connection::query(const std::string& sql) {
 }
 
 result connection::query_with(const std::string& sql, const params& values) {
-  const statement prepared = prepare(sql);
-  try {
-    result outcome = execute(prepared, values);
-    deallocate(prepared);
-    return outcome;
-  } catch (const error&) {
-    // The statement's failure is what the program is given; one of
-    // deallocating after it changes nothing the session has not told.
-    if (!lost()) {
-      static_cast<void>(trl_deallocate(get(), prepared.get()));
-    }
-    throw;
-  }
+  trl_result* made = nullptr;
+  const trl_status status = trl_query_values(get(), sql.c_str(), values.get(), &made);
+  result outcome{made};
+  detail::check_on(*this, status);
+  return outcome;
 }
 
 result connection::query_text(const std::string& sql, const std::vector<std::optional<std::string>>& values) {

@@ -48,12 +48,12 @@ public:
 `query(sql)` runs one statement by Query: a query's Description, its
 Rows and its Complete; another statement's Complete; a failure's Error.
 `query(sql, values...)` and `query_with(sql, params)` prepare the
-statement, execute it with the values, and deallocate it, so the
-completion the connection tells after them is the deallocation's.
-`query_text` does the same with each value given as text, which the
-server assigns to its parameter's type, as SQL's CAST of the text does,
-an empty optional the null value; the completion the connection tells
-after it is the statement's own. `query_batches` gives a query's rows to
+statement, execute it with the values, each assigned to its parameter's
+type as `execute` sends it, and deallocate it. `query_text` does the
+same with each value given as text, which the server assigns to its
+parameter's type, as SQL's CAST of the text does, an empty optional the
+null value. After each, the completion the connection tells is the
+statement's own, not its deallocation's. `query_batches` gives a query's rows to
 the handler a batch at a time, on the calling thread, as they come;
 what the handler throws is thrown once the statement's replies are
 read, and it is given no more batches after. `query_many` runs a text of

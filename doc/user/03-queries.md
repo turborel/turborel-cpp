@@ -106,12 +106,10 @@ Grace
 42 NULL
 ```
 
-A statement run with its values by `query` is prepared, executed and
-deallocated, so what the connection tells of the last statement after
-it, its rows affected, generated values and conditions, is the
-deallocation's; after `query_text` it is the statement's own. A program
-that wants an INSERT's with values of their C++ types prepares and
-executes it, as [Prepared Statements](04-prepared-statements.md) shows.
+What the connection tells of the last statement after a statement run
+with its values, by `query` or `query_text`, its rows affected,
+generated values and conditions, is the statement's own, not its
+deallocation's.
 
 ## Rows as they come
 

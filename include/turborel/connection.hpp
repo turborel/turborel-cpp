@@ -306,7 +306,8 @@ public:
   result query(const std::string& sql);
 
   /// Runs one statement with its `?` parameters: prepared, executed with
-  /// `first` and `values`, then deallocated.
+  /// `first` and `values`, then deallocated, as query_with() runs it; what
+  /// the connection tells after is the statement's own completion.
   /// @param sql The statement.
   /// @param first Its first parameter's value, as params::add takes it.
   /// @param values The rest of its parameters' values.
@@ -317,7 +318,10 @@ public:
     return query_with(sql, params::of(first, values...));
   }
 
-  /// Runs one statement with its `?` parameters given as `values`.
+  /// Runs one statement with its `?` parameters given as `values`, each
+  /// assigned to its parameter's type as execute() sends it, by
+  /// turborel-c's trl_query_values; what the connection tells after is the
+  /// statement's own completion.
   /// @param sql The statement.
   /// @param values Its parameters' values.
   /// @return Its result.

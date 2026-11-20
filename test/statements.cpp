@@ -301,8 +301,10 @@ TEST_CASE("a column's declared type is told") {
 /// Verifies: [CLIENT Prepared statements] Parameters given as text, as
 /// turborel-c's trl_query_params takes them, are assigned to each
 /// parameter's type by the server, as SQL's CAST of the text; a null among
-/// them; what the connection tells after is the statement's own
-/// completion, its rows and generated values.
+/// them; what the connection tells after it, and after a statement run
+/// with typed values, by query or query_with, is the statement's own
+/// completion, its rows and generated values; with no values it runs as
+/// query() does.
 TEST_CASE("parameters given as text are cast by the server") {
   LIVE_OR_SKIP();
   turborel::connection conn = test::live::trusted();
@@ -315,6 +317,15 @@ TEST_CASE("parameters given as text are cast by the server") {
   static_cast<void>(conn.query_text("INSERT INTO ST4T (V) VALUES (CAST(? AS INTEGER)), (2)", {std::string{"1"}}));
   CHECK(conn.rows_affected() == 2);
   CHECK(conn.generated() == std::vector<std::string_view>{"1", "2"});
+  static_cast<void>(conn.query("INSERT INTO ST4T (V) VALUES (?), (?), (?)", 3, 4, 5));
+  CHECK(conn.rows_affected() == 3);
+  CHECK(conn.generated() == std::vector<std::string_view>{"3", "4", "5"});
+  turborel::params one;
+  one.add(6);
+  static_cast<void>(conn.query_with("INSERT INTO ST4T (V) VALUES (?)", one));
+  CHECK(conn.rows_affected() == 1);
+  CHECK(conn.generated() == std::vector<std::string_view>{"6"});
+  CHECK(conn.query_with("VALUES 7", turborel::params{}).at(0).get<std::int64_t>(0) == 7);
 }
 
 /// Verifies: [CLIENT Running statements] A handler that throws on a query's

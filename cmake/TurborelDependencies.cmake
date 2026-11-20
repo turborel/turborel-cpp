@@ -11,7 +11,7 @@ include(FetchContent)
 # takes the new one; a checkout of turborel-c's own is built instead by
 # CMake's FETCHCONTENT_SOURCE_DIR_TURBOREL.
 set(TURBOREL_CPP_C_REPOSITORY "https://github.com/turborel/turborel-c.git")
-set(TURBOREL_CPP_C_COMMIT "ade13b2254c9f363b2fd4a1f1671979d4616ad94")
+set(TURBOREL_CPP_C_COMMIT "76e47dff1740b621f608fc21ab63183abb1e8600")
 
 # Links `target` to turborel-c.
 function(turborel_cpp_link_c target)
