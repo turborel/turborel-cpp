@@ -3,7 +3,14 @@
 # and used as a program that finds it would.
 turborel_cpp_fetch_catch2()
 
-add_executable(turborel-cpp-tests error.cpp)
+add_executable(
+  turborel-cpp-tests
+  datetime.cpp
+  decimal.cpp
+  error.cpp
+  int128.cpp
+  interval.cpp
+  uuid.cpp)
 target_link_libraries(turborel-cpp-tests PRIVATE turborel::turborel-cpp Catch2::Catch2WithMain)
 set_target_properties(turborel-cpp-tests PROPERTIES CXX_EXTENSIONS OFF)
 turborel_cpp_warnings(turborel-cpp-tests)

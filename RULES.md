@@ -58,6 +58,7 @@ Each is told in full in [§7](#7-the-decisions).
 | D13 | clang-format and clang-tidy of LLVM 23, and Doxygen, check what the compiler does not |
 | D14 | The tests run under AddressSanitizer and UndefinedBehaviorSanitizer |
 | D15 | No codec tests here: the codec and its tests are turborel-c's |
+| D16 | Values in C++ types of the driver's own, each mapped to the protocol's fields |
 
 ---
 
@@ -577,6 +578,34 @@ Every turborel driver's first test encodes and decodes a frame header per
 turborel-c holds the frames, fields and values, and tests them. The tests
 here start at what the driver adds, its error type first, and test the
 protocol through turborel-c's API once it exists.
+
+#### D16. Values in C++ types of the driver's own, each mapped to the protocol's fields
+
+Where the standard library has a type that holds every value of a
+protocol type, the driver uses it; where it has none, the driver has its
+own, which holds every value the protocol can carry, with no loss:
+
+| Protocol | C++ | Why |
+|---|---|---|
+| `i128` | `turborel::int128` (`int128.hpp`) | C++20 has no 128-bit integer, and MSVC no extension of one |
+| exact number, units `i128` and scale `u32` | `turborel::decimal` (`decimal.hpp`) | the standard has no decimal type |
+| DATE | `turborel::date`, a `std::chrono::year_month_day` | |
+| TIME, WITH TIME ZONE or not | `turborel::time`: UTC since midnight, displacement, zoned, precision | `std::chrono::hh_mm_ss` holds no displacement |
+| TIMESTAMP, WITH TIME ZONE or not | `turborel::timestamp`: a `std::chrono::sys_time` of microseconds, displacement, zoned, precision | as TIME |
+| INTERVAL | `turborel::interval`: its qualifier and `int128` units; `std::chrono::months` or `microseconds` where they fit | its units may exceed 64 bits |
+| UUID | `turborel::uuid`, 16 `std::byte`s | |
+
+A datetime's fields, `turborel::datetime_fields`, are the protocol's
+body of tags 8, 9 and 11, its microseconds counted from 0001-01-01 UTC as
+turborel's `value/datetime.rs` counts them, not from 1970. Each datetime
+type maps to them and back, failing with SQLSTATE 22008 out of 0001 to
+9999 and 22009 for a displacement out of -12:59 to +14:00, turborel's
+own ranges, with turborel's SQLCODE of a data exception, -301 (D10). Text, of
+a decimal or a UUID, is written and read as turborel's own code writes
+and reads it, so a value reads the same from every client. These types
+carry values and do no arithmetic. The bytes on the wire stay
+turborel-c's (D1); `int128` alone writes its 16 bytes, as the type
+turborel-c's halves become.
 
 ---
 

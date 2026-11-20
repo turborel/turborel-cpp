@@ -33,7 +33,15 @@ include(TurborelDependencies)
 add_library(turborel-cpp)
 add_library(turborel::turborel-cpp ALIAS turborel-cpp)
 
-target_sources(turborel-cpp PRIVATE src/error.cpp)
+target_sources(
+  turborel-cpp
+  PRIVATE src/data_error.cpp
+          src/datetime.cpp
+          src/decimal.cpp
+          src/error.cpp
+          src/int128.cpp
+          src/interval.cpp
+          src/uuid.cpp)
 target_compile_features(turborel-cpp PUBLIC cxx_std_20)
 target_include_directories(
   turborel-cpp PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
