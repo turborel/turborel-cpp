@@ -31,9 +31,11 @@ macro(fail rule file what)
 endmacro()
 
 # The relative links of `text` into `out`: what each `](...)` names, less
-# its anchor, but full URLs and anchors alone. Square brackets group a
-# CMake list's items, so they are replaced first.
+# its anchor, but full URLs and anchors alone; a fenced block of code, as
+# a C++ lambda's `[](...)`, holds none. Square brackets group a CMake
+# list's items, so they are replaced first.
 function(links_of text out)
+  string(REGEX REPLACE "```[^`]*```" "" text "${text}")
   string(REPLACE ";" "@SC@" text "${text}")
   string(REPLACE "[" "@LB@" text "${text}")
   string(REPLACE "]" "@RB@" text "${text}")

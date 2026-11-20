@@ -18,7 +18,6 @@
 #include <istream>
 #include <memory>
 #include <ostream>
-#include <span>
 #include <string>
 #include <vector>
 

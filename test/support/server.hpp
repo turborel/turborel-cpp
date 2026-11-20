@@ -16,7 +16,6 @@
 #include <turborel/connection.hpp>
 
 #include <cstdint>
-#include <optional>
 #include <string>
 
 namespace test::live {

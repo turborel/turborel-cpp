@@ -20,6 +20,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <array>
+#include <bit>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -139,7 +140,7 @@ TEST_CASE("every kind of value goes to the server and back") {
       id.value_or(turborel::uuid{}), std::nullopt);
   const turborel::row row = back.at(0);
   CHECK(row.get<turborel::decimal>(0).to_string() == "-12.50");
-  CHECK(row.get<double>(1) == 2.5);
+  CHECK(std::bit_cast<std::uint64_t>(row.get<double>(1)) == std::bit_cast<std::uint64_t>(2.5));
   CHECK(row.get<std::string>(2) == "Ada");
   CHECK(row.get<std::span<const std::byte>>(3).size() == 2);
   CHECK(row.get<turborel::date>(4) == day);

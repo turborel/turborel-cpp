@@ -60,7 +60,8 @@ TEST_CASE("the scalar values read as their C++ types") {
   CHECK(one("value-exact").at(0).get<turborel::decimal>(0).to_string() == "123.45");
   CHECK(one("value-exact-negative").at(0).get<std::int64_t>(0) == -1);
   CHECK(one("value-exact-largest").at(0).get<turborel::decimal>(0).units == turborel::int128::max());
-  CHECK(one("value-approximate").at(0).get<double>(0) == 1.5);
+  CHECK(std::bit_cast<std::uint64_t>(one("value-approximate").at(0).get<double>(0)) ==
+        std::bit_cast<std::uint64_t>(1.5));
   const auto zero = one("value-approximate-negative-zero").at(0).get<double>(0);
   CHECK(std::bit_cast<std::uint64_t>(zero) == std::bit_cast<std::uint64_t>(-0.0));
   CHECK(one("value-binary").at(0).get<std::span<const std::byte>>(0).size() == 4);

@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <chrono>
 #include <compare>
-#include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <optional>

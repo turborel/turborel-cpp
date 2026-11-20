@@ -21,7 +21,6 @@
 #include <stdexcept>
 #include <streambuf>
 #include <string>
-#include <vector>
 
 namespace {
 

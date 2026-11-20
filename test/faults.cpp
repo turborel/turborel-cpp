@@ -21,7 +21,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <new>
-#include <string>
 
 #ifdef TURBOREL_CPP_FAULTS
 // turborel-c's own hooks of its build of TRL_FAULTS (its RULES.md D14),

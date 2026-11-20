@@ -15,7 +15,6 @@
 #include <cstdint>
 #include <initializer_list>
 #include <map>
-#include <memory>
 #include <optional>
 #include <span>
 #include <string>
