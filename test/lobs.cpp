@@ -14,10 +14,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <istream>
-#include <iterator>
 #include <optional>
 #include <span>
 #include <string>
@@ -79,8 +79,12 @@ TEST_CASE("a large object comes whole or by its locator") {
   CHECK(turborel::read_lob(conn, located, {.from = 999, .count = 2, .characters = true}, few) == 3);
   turborel::lob_reader reader{conn, located};
   std::istream in{&reader};
-  std::string const text{std::istreambuf_iterator<char>{in}, std::istreambuf_iterator<char>{}};
-  CHECK(text.size() == 1002 * 300);
+  std::array<char, 4096> chunk{};
+  std::size_t octets = 0;
+  while (in.read(chunk.data(), chunk.size()) || in.gcount() > 0) {
+    octets += static_cast<std::size_t>(in.gcount());
+  }
+  CHECK(octets == 1002 * 300);
   turborel::lob_reader again{conn, located};
   CHECK(again.read_all().size() == 1002 * 300);
   CHECK(again.read(out) == 0);
