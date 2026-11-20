@@ -166,8 +166,15 @@ void server::start() {
     return;
   }
   const std::string secret = std::string{password} + "\n";
-  static_cast<void>(write(input, secret.data(), secret.size()));
+  // A password not written whole leaves the server waiting for one, so it
+  // is stopped, saying why.
+  const bool told = write(input, secret.data(), secret.size()) == static_cast<ssize_t>(secret.size());
   close(input);
+  if (!told) {
+    stop();
+    why_ = "the server could not be given the owner's password";
+    return;
+  }
   await(at);
 }
 
