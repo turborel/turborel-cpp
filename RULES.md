@@ -511,22 +511,16 @@ codec:
   08006, the connection kept, where turborel-client sends them and the
   server fails the connection.
 
-Where turborel-c's API cannot say what the drivers' shared table of
-failures asks, the driver says it itself:
-
-- turborel-c's agent refuses CONNECT of a connection its connector failed
-  to make by that connection's failure, which a C++ connector, throwing
-  `turborel::error`, has no connection to carry. The driver refuses it as
-  turborel-c does: SQLSTATE 08001 of a server not reached, lost or never
-  found (08006 or 08001), else 08004, the server's refusal, SQLCODE -919,
-  citing ISO/IEC 9075:1992 §15.1 GR10, GR11 (`src/agent.cpp`).
-- turborel-c refuses JSON text nesting past 128 arrays and objects as it
-  refuses text no JSON value is, TRL_INVALID_TEXT. The driver tells the
-  first by its nesting, as the shared table asks: SQLCODE -900, SQLSTATE
-  0A000, refused before sending; the second is 22032, as turborel-c names
-  JSON text that is not valid, as it does a JSON value no JSON text
-  writes, which `value::json()` gives likewise (`src/params.cpp`,
-  `src/value.cpp`).
+turborel-c says the rest as the shared table asks, so the driver tells
+it as turborel-c gives it: a C++ connector's `turborel::error` is told to
+the agent by `trl_failure_tell`, which refuses CONNECT of it as of a
+connection's failure, 08001 of a server not reached, else 08004, the
+error's message kept (`src/agent.cpp`); JSON text a parameter cannot be,
+read by `trl_params_failure`, is 22032 of text no JSON value is, 22003
+of a number no type holds, and SQLCODE -900, SQLSTATE 0A000, past 128
+nested arrays and objects or 256 MiB (`src/params.cpp`); a JSON value no
+JSON text writes, which `value::json()` refuses, is 22032 likewise
+(`src/value.cpp`).
 
 ### This driver's own
 
@@ -602,8 +596,8 @@ checkout with nothing installed, as CI does. A commit, not a tag, because
 turborel-c has no tags during the alpha and a tag can be moved; it is no
 cache variable, so a build made before it moved takes the new one, and
 CMake's `FETCHCONTENT_SOURCE_DIR_TURBOREL` builds a checkout of one's own
-instead. The commit is 01b3c308, turborel-c's main with its milestones
-M1 to M8 done. The installed package of the driver finds turborel-c the
+instead. The commit is ade13b22, turborel-c's main with its milestones
+M1 to M8 done and the gaps this driver found closed. The installed package of the driver finds turborel-c the
 same way (`find_dependency(turborel <version> EXACT CONFIG)`).
 
 Every call of turborel-c goes through `src/capi.hpp`: an owner of each
@@ -721,8 +715,10 @@ proxy, by the server's own certificate, are OpenSSL's too
 library turborel-c uses where it has one; found by CMake, nothing
 installed links it. Without it, or where turborel-c was built with no TLS
 library, as of an OpenSSL older than it takes, the TLS and SCRAM tests
-are skipped, saying why; where it was built without zlib, as on Windows,
-the tests of compressed frames are skipped so.
+are skipped, saying why; where it was built without zlib, the tests of
+compressed frames are skipped so. Where no zlib is found, as on
+Windows, turborel-c builds one in from a pinned release (its
+`TRL_ZLIB_FETCH`), so the Windows job runs them too.
 
 #### D18. The sample frames are a copy, pinned at a Turborel commit
 

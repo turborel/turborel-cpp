@@ -164,11 +164,13 @@ TEST_CASE("an agent begun with none connects by its connector") {
   CHECK(failing.size() == 0);
 }
 
-/// Verifies: [CLIENT The SQL-agent] A connector's failure refuses CONNECT:
-/// of a server not reached, SQLSTATE 08001; of a server that refused the
-/// login, 08004; a connector that made a connection over the program's
-/// own stream fails as a misuse, as the agent cannot keep it; an agent is
-/// moved as a value.
+/// Verifies: [CLIENT The SQL-agent] A connector's failure refuses CONNECT,
+/// as turborel-c refuses it of a connection's: of a server not reached,
+/// SQLSTATE 08001; of a server that refused the login, or the program's
+/// own error, 08004, its message kept; an error turborel-c cannot be told,
+/// of an SQLCODE not below 0, is thrown as it was; a connector that made a
+/// connection over the program's own stream fails as a misuse, as the
+/// agent cannot keep it; an agent is moved as a value.
 TEST_CASE("a connector's failure refuses CONNECT, saying why") {
   LIVE_OR_SKIP();
   table();
@@ -184,11 +186,31 @@ TEST_CASE("a connector's failure refuses CONNECT, saying why") {
     if (user == "STREAM") {
       return std::move(test::open_scripted(test::ready({}), {}).conn);
     }
+    if (user == "MINE") {
+      throw turborel::error{turborel::failure{.sqlcode = -1, .sqlstate = "42000", .message = "not this one"}};
+    }
+    if (user == "ZERO") {
+      throw turborel::error{turborel::failure{.sqlcode = 0, .sqlstate = "00000", .message = "none"}};
+    }
     return dial(named, user);
   }};
   CHECK(state_of(agent, "CONNECT TO '" + address() + "' AS 'A' USER 'BAD'") == "08004");
   CHECK(state_of(agent, "CONNECT TO '" + address() + "' AS 'A' USER 'NONE'") == "08001");
   CHECK(state_of(agent, "CONNECT TO '" + address() + "' AS 'A' USER 'STREAM'") == "TB910");
+  try {
+    static_cast<void>(agent.query("CONNECT TO '" + address() + "' AS 'A' USER 'MINE'"));
+    FAIL("CONNECT by a connector that threw succeeded");
+  } catch (const turborel::error& e) {
+    CHECK(e.sqlstate() == "08004");
+    CHECK(e.message() == "not this one");
+  }
+  try {
+    static_cast<void>(agent.query("CONNECT TO '" + address() + "' AS 'A' USER 'ZERO'"));
+    FAIL("CONNECT by a connector that threw succeeded");
+  } catch (const turborel::error& e) {
+    CHECK(e.sqlcode() == 0);
+    CHECK(e.message() == "none");
+  }
   CHECK(state_of(agent, "CONNECT TO '" + address() + "' AS 'A'") == "00000");
   turborel::agent other{dial};
   other = std::move(agent);

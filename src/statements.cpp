@@ -60,7 +60,7 @@ std::vector<column> statement::columns() const {
         .type = data_type{trl_statement_column_type(get(), i)},
         .declared_name = detail::maybe(trl_statement_column_type_name(get(), i)),
         .type_written = detail::view(trl_statement_column_type_written(get(), i)),
-        .not_null = std::nullopt,
+        .not_null = trl_statement_column_not_null(get(), i),
     });
   }
   return columns;

@@ -326,7 +326,8 @@ public:
 
   /// Runs one statement with its `?` parameters given as text, which the
   /// server assigns to each parameter's type, as SQL's CAST of the text
-  /// does, by turborel-c's trl_query_params.
+  /// does, by turborel-c's trl_query_params; what the connection tells
+  /// after is the statement's own completion.
   /// @param sql The statement.
   /// @param values Each parameter's text, or none for the null value.
   /// @return Its result.

@@ -37,10 +37,9 @@ struct column {
   /// Its type as SQL writes it: as declared, where told, else as its tag
   /// says, as NUMERIC(10,0) of INTEGER.
   std::string_view type_written;
-  /// Whether it is NOT NULL, as a Description tells it [PROTOCOL Composite
-  /// fields]; none of a prepared statement's column, whose flag
-  /// turborel-c's API does not give.
-  std::optional<bool> not_null;
+  /// Whether it is NOT NULL, as a Description or Prepared tells it
+  /// [PROTOCOL Composite fields].
+  bool not_null{};
 };
 
 /// A row of a result: a view, valid while its result is.

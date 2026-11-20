@@ -11,7 +11,7 @@ include(FetchContent)
 # takes the new one; a checkout of turborel-c's own is built instead by
 # CMake's FETCHCONTENT_SOURCE_DIR_TURBOREL.
 set(TURBOREL_CPP_C_REPOSITORY "https://github.com/turborel/turborel-c.git")
-set(TURBOREL_CPP_C_COMMIT "01b3c3089ce7a5653c918995cb53872b098e74f3")
+set(TURBOREL_CPP_C_COMMIT "ade13b2254c9f363b2fd4a1f1671979d4616ad94")
 
 # Links `target` to turborel-c.
 function(turborel_cpp_link_c target)
@@ -33,12 +33,9 @@ function(turborel_cpp_link_c target)
   FetchContent_MakeAvailable(turborel)
   foreach(c_target IN ITEMS turborel turborel_objects)
     if(TARGET ${c_target})
-      # Not ours: built with its own warnings, which never fail our build,
-      # though turborel-c makes them errors of its own, and compilers it does
-      # not build with warn where it does not, as GCC 13 and 14 do at -O3.
+      # Not ours: built with its own warnings, which CMAKE_COMPILE_WARNING_AS_ERROR
+      # of the driver's own builds does not reach.
       set_target_properties(${c_target} PROPERTIES COMPILE_WARNING_AS_ERROR OFF)
-      target_compile_options(${c_target} PRIVATE $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-error>
-                                                 $<$<C_COMPILER_ID:MSVC>:/WX->)
     endif()
   endforeach()
   target_link_libraries(${target} PUBLIC turborel::turborel)

@@ -162,7 +162,7 @@ struct column {
   data_type type;
   std::optional<std::string_view> declared_name;
   std::string_view type_written;
-  std::optional<bool> not_null;
+  bool not_null;
 };
 }
 ```
@@ -182,8 +182,7 @@ which a connection asks for, `declared_name` is the Information Schema's
 DATA_TYPE of the type it was declared with, as INTEGER, and
 `type_written` that type as SQL writes it; without it, `type_written`
 writes the type its tag says, NUMERIC(10,0) of an INTEGER. A result's
-column says whether it is NOT NULL, `not_null`; a prepared statement's
-says none, turborel-c giving no such flag of a statement.
+or prepared statement's column says whether it is NOT NULL, `not_null`.
 
 ## Parameters
 

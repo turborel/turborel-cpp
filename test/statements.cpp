@@ -276,7 +276,8 @@ TEST_CASE("a CALL gives its output parameters as one row") {
 /// Verifies: [CLIENT Prepared statements] A column's declared type, its
 /// DATA_TYPE name and as SQL writes it, comes with `declared-types`, which
 /// connecting asks for, so INTEGER is told from NUMERIC(10,0)
-/// [PROTOCOL Declared types].
+/// [PROTOCOL Declared types]; and whether it is NOT NULL, a prepared
+/// statement's column as a result's [PROTOCOL Composite fields].
 TEST_CASE("a column's declared type is told") {
   LIVE_OR_SKIP();
   turborel::connection conn = test::live::trusted();
@@ -289,14 +290,19 @@ TEST_CASE("a column's declared type is told") {
   CHECK(columns.at(2).declared_name == "DOUBLE PRECISION");
   const turborel::statement select = conn.prepare("SELECT I FROM ST4");
   CHECK(select.columns().at(0).declared_name == "INTEGER");
-  CHECK(select.columns().at(0).not_null == std::nullopt);
-  CHECK(read.columns().at(0).not_null == false);
+  CHECK(!select.columns().at(0).not_null);
+  CHECK(!read.columns().at(0).not_null);
+  table(conn, "ST4N", "K INTEGER NOT NULL, V INTEGER");
+  const std::vector<turborel::column> keyed = conn.prepare("SELECT K, V FROM ST4N").columns();
+  CHECK(keyed.at(0).not_null);
+  CHECK(!keyed.at(1).not_null);
 }
 
 /// Verifies: [CLIENT Prepared statements] Parameters given as text, as
 /// turborel-c's trl_query_params takes them, are assigned to each
 /// parameter's type by the server, as SQL's CAST of the text; a null among
-/// them.
+/// them; what the connection tells after is the statement's own
+/// completion, its rows and generated values.
 TEST_CASE("parameters given as text are cast by the server") {
   LIVE_OR_SKIP();
   turborel::connection conn = test::live::trusted();
@@ -305,6 +311,10 @@ TEST_CASE("parameters given as text are cast by the server") {
   CHECK(read.at(0).get<std::int64_t>(0) == 42);
   CHECK(read.at(0).at(1).is_null());
   CHECK(sqlstate_of([&conn] { static_cast<void>(conn.query("VALUES CAST(? AS INTEGER)", "x")); }) != "none");
+  table(conn, "ST4T", "ID INTEGER GENERATED ALWAYS AS IDENTITY, V INTEGER");
+  static_cast<void>(conn.query_text("INSERT INTO ST4T (V) VALUES (CAST(? AS INTEGER)), (2)", {std::string{"1"}}));
+  CHECK(conn.rows_affected() == 2);
+  CHECK(conn.generated() == std::vector<std::string_view>{"1", "2"});
 }
 
 /// Verifies: [CLIENT Running statements] A handler that throws on a query's

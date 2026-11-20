@@ -48,9 +48,10 @@ Each refusal has its SQLSTATE: no such connection, 08003; a name in use,
 08002; a name not an identifier, 2E000; a user not one, 28000; CONNECT
 or SET CONNECTION in a transaction, 0A001; DISCONNECT of a connection
 whose transaction is active, 25000. A connector's failure refuses
-CONNECT, SQLCODE -919: 08001 of a server not reached, lost or never
-found, else 08004; what it throws that is no `turborel::error` is thrown
-as it was, and a connection it made over the program's own stream fails
+CONNECT, as turborel-c refuses it of a connection's failure, SQLCODE
+-919: 08001 of a server not reached, lost or never found, else 08004,
+the `turborel::error`'s message kept; what it throws that is no
+`turborel::error`, or one of an SQLCODE not below 0, is thrown as it was, and a connection it made over the program's own stream fails
 with -910, TB910.
 
 ## EXAMPLES

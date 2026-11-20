@@ -48,7 +48,8 @@ A distinct type is told as its source type, and a plug-in's type the
 client does not know reads by its name, written `UNREGISTERED`, as
 Turborel's own client writes it.
 
-A result's column also tells whether it is NOT NULL, its `not_null`.
+A result's or prepared statement's column also tells whether it is NOT
+NULL, its `not_null`.
 Granted the capability `declared-types`, which a connection asks for, a
 column has the type it was declared with too: its `declared_name`, the
 Information Schema's DATA_TYPE, as INTEGER, and its `type_written`, as

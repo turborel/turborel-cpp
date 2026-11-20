@@ -43,41 +43,17 @@ struct agent_state {
 
 namespace {
 
-/// SQLSTATE 08006, a connection lost, or never had.
-constexpr std::string_view broken_sqlstate = "08006";
-/// SQLSTATE 08001, the client unable to establish the connection.
-constexpr std::string_view unable_sqlstate = "08001";
-/// SQLSTATE 08004, the server's rejection of the connection.
-constexpr std::string_view rejected_sqlstate = "08004";
-/// The rules CONNECT's refusal of a connection not made follows.
-constexpr std::string_view connect_rule = "ISO/IEC 9075:1992 \xc2\xa7"
-                                          "15.1 GR10, GR11";
-
 /// An optional copy of a string turborel-c gives, null as none.
 std::optional<std::string> maybe_text(const char* text) {
   return text == nullptr ? std::nullopt : std::optional<std::string>{text};
 }
 
-/// The refusal of CONNECT whose connection the connector failed to make
-/// with `why`: of a server not reached, lost or never found, SQLSTATE
-/// 08001, the client unable to connect; of any other failure, 08004, the
-/// server's refusal; as turborel-c's agent refuses a connection its
-/// connector failed to make, which it cannot be told of without the
-/// connection that failed (RULES.md D8).
-failure refusal_of(const failure& why) {
-  const bool unreached = why.sqlstate == broken_sqlstate || why.sqlstate == unable_sqlstate;
-  return failure{
-      .sqlcode = detail::broken_sqlcode,
-      .sqlstate = std::string{unreached ? unable_sqlstate : rejected_sqlstate},
-      .message = why.message,
-      .rule = std::string{connect_rule},
-  };
-}
-
-/// Makes a connection by the program's connector, as turborel-c calls it;
-/// what it throws is thrown once the agent's call returns, the driver's
-/// error as CONNECT's refusal (R-RAII-2).
-trl_status make_one(void* context, const char* server, const char* user, trl_conn** out) noexcept {
+/// Makes a connection by the program's connector, as turborel-c calls it:
+/// the driver's error it throws is told to turborel-c, which refuses
+/// CONNECT of it as of a connection's failure, 08001 of a server not
+/// reached, else 08004; anything else it throws, or an error turborel-c
+/// cannot be told, is thrown once the agent's call returns (R-RAII-2).
+trl_status make_one(void* context, const char* server, const char* user, trl_conn** out, trl_failure* why) noexcept {
   auto& held = *static_cast<detail::agent_state*>(context);
   *out = nullptr;
   try {
@@ -88,6 +64,12 @@ trl_status make_one(void* context, const char* server, const char* user, trl_con
     }
     *out = detail::conn_access::release(made);
     return TRL_OK;
+  } catch (const error& e) {
+    const failure& told = e.details();
+    if (trl_failure_tell(why, told.sqlcode, told.sqlstate.c_str(), told.message.c_str()) != TRL_OK) {
+      held.thrown = std::current_exception();
+    }
+    return TRL_FAILED;
   } catch (...) {
     held.thrown = std::current_exception();
     return TRL_FAILED;
@@ -119,19 +101,15 @@ agent::~agent() = default;
 
 namespace {
 
-/// What an agent's statement came to: what its connector threw, CONNECT's
-/// refusal of the driver's error, a connection the agent cannot keep, or
-/// the agent's failure; else its outcome.
+/// What an agent's statement came to: what its connector threw that
+/// turborel-c was not told, a connection the agent cannot keep, or the
+/// agent's failure; else its outcome.
 result finished(detail::agent_state& state, trl_status status, result outcome) {
   if (std::exchange(state.over_stream, false)) {
     detail::raise_misuse("the agent's connector made a connection over the program's own stream, which it cannot keep");
   }
   if (state.thrown) {
-    try {
-      std::rethrow_exception(std::exchange(state.thrown, nullptr));
-    } catch (const error& e) {
-      throw error{refusal_of(e.details())};
-    }
+    std::rethrow_exception(std::exchange(state.thrown, nullptr));
   }
   detail::check(status, trl_agent_failure(state.handle.get()));
   return outcome;
