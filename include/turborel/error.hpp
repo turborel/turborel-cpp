@@ -83,16 +83,20 @@ public:
   explicit error(failure what_failed);
 
   /// The failure, whole.
+  /// @return Its failure, as it was made.
   [[nodiscard]] const failure& details() const noexcept;
 
   /// Its SQLCODE.
+  /// @return The failure's SQLCODE.
   [[nodiscard]] std::int32_t sqlcode() const noexcept;
 
   /// Its SQLSTATE.
+  /// @return The failure's SQLSTATE, five characters.
   [[nodiscard]] std::string_view sqlstate() const noexcept;
 
   /// What went wrong, in plain words, without the SQLCODE and SQLSTATE
   /// that `what()` adds.
+  /// @return The failure's message.
   [[nodiscard]] std::string_view message() const noexcept;
 
 private:
