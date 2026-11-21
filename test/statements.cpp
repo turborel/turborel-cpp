@@ -153,6 +153,36 @@ TEST_CASE("every kind of value goes to the server and back") {
   CHECK(conn.query("VALUES CAST(? AS VARCHAR(5))", "").at(0).get<std::string>(0).empty());
 }
 
+/// Verifies: [PROTOCOL Values] An exact number of 38 digits, Turborel's
+/// most, is sent as a parameter and read as a result with every digit and
+/// its scale kept, the driver narrowing none; one of 39 is refused by the
+/// server (SQLCODE -301, SQLSTATE 22003); a quotient has the scale
+/// Turborel gives it, 1/3 being 0.333333.
+TEST_CASE("exact numbers of 38 digits are kept, 39 refused") {
+  LIVE_OR_SKIP();
+  turborel::connection conn = test::live::trusted();
+  const std::string widest = "1234567890123456789012345678.9012345678";
+  const std::optional<turborel::decimal> sent = turborel::decimal::parse(widest);
+  REQUIRE(sent);
+  const turborel::result back = conn.query("VALUES CAST(? AS DECIMAL(38,10))", *sent);
+  CHECK(back.at(0).get<turborel::decimal>(0).to_string() == widest);
+  CHECK(back.columns().at(0).type.precision() == 38);
+  const std::string whole(38, '9');
+  CHECK(conn.query("VALUES " + whole).at(0).get<turborel::decimal>(0).to_string() == whole);
+  CHECK(conn.query("VALUES -" + whole).at(0).get<turborel::decimal>(0).to_string() == "-" + whole);
+  const std::optional<turborel::decimal> past = turborel::decimal::parse("1" + std::string(38, '0'));
+  REQUIRE(past);
+  try {
+    static_cast<void>(conn.query("VALUES CAST(? AS DECIMAL(38,0))", *past));
+    FAIL("a value of 39 digits was taken");
+  } catch (const turborel::error& e) {
+    CHECK(e.sqlcode() == -301);
+    CHECK(e.sqlstate() == "22003");
+  }
+  CHECK(sqlstate_of([&] { static_cast<void>(conn.query("VALUES " + whole + " + 1")); }) == "22003");
+  CHECK(conn.query("VALUES 1/3").at(0).get<turborel::decimal>(0).to_string() == "0.333333");
+}
+
 /// Verifies: [CLIENT Running statements] A transaction begins with the first
 /// statement and lasts until COMMIT or ROLLBACK, the session telling
 /// whether it is active; under autocommit each statement is its own
