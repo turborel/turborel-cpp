@@ -335,6 +335,12 @@ they follow Turborel's RULES.md D89 and `src/json/binary.rs`.
 | P-QUERY-6 | With tag 2, several statements run one by one, `ends` applying to each, tag 5 on each Complete but the last, the first failure's Error ending the replies; text of no statement, one Complete | `[PROTOCOL Query 'Q']` | done |
 | P-QUERY-7 | A statement that fails before its first batch is sent is answered by its Error alone, with no Description or Rows; its notices and Status still come, as do an earlier pipelined request's replies. Once a batch has gone, Rows stream and an Error may follow them (D42) | `[PROTOCOL Query 'Q']` | done |
 
+P-QUERY-7's live test covers the first-batch case: a statement that
+fails before its first batch is sent, its failure thrown alone, no batch
+given. Rows that stream before an Error are not tested live, as no query
+the tests tried, a scan of 200000 rows failing at its last among them,
+had the server send a batch ahead of the failure.
+
 ### Prepare 'P'
 
 | ID | Row | Citation | Status |
