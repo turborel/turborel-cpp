@@ -60,7 +60,7 @@ turborel::connection trusted(const turborel::connect_options& options = turborel
 /// @return The target.
 turborel::target tcp();
 
-/// A user made for a test, with a password, by the owner, if not made yet.
+/// A user made for a test, with a password, by the database's owner, if not made yet.
 /// @param name The user, as an identifier.
 /// @param secret Its password.
 void user(const std::string& name, const std::string& secret);

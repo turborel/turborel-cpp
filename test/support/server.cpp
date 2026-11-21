@@ -68,7 +68,7 @@ public:
   [[nodiscard]] bool certified() const noexcept { return certified_; }
   [[nodiscard]] const std::filesystem::path& dir() const noexcept { return dir_; }
 
-  /// Makes a user once, by the owner.
+  /// Makes a user once, by the database's owner.
   void user(const std::string& name, const std::string& secret) {
     const std::scoped_lock locked{lock_};
     if (made_.insert(name).second) {
