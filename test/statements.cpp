@@ -358,6 +358,29 @@ TEST_CASE("parameters given as text are cast by the server") {
   CHECK(conn.query_with("VALUES 7", turborel::params{}).at(0).get<std::int64_t>(0) == 7);
 }
 
+/// Verifies: [PROTOCOL Query 'Q'] A query that fails before its first
+/// batch is sent is answered by its Error alone, with no Description or
+/// rows: the handler is given no batch, query() and query_batches() throw
+/// the failure, and the connection goes on [CLIENT Running statements].
+TEST_CASE("a query failing at its first batch gives its failure alone") {
+  LIVE_OR_SKIP();
+  turborel::connection conn = test::live::trusted();
+  std::size_t given = 0;
+  const auto count = [&given](const turborel::result&) { ++given; };
+  try {
+    static_cast<void>(conn.query_batches("SELECT 1 / (X - 1) FROM (VALUES (1), (2)) AS V(X)", count));
+    FAIL("a division by zero succeeded");
+  } catch (const turborel::error& e) {
+    CHECK(e.sqlstate() == "22012");
+  }
+  CHECK(given == 0);
+  CHECK(sqlstate_of([&conn] { static_cast<void>(conn.query("SELECT 1 / (X - 1) FROM (VALUES (1), (2)) AS V(X)")); }) ==
+        "22012");
+  CHECK_FALSE(conn.lost());
+  static_cast<void>(conn.query("ROLLBACK"));
+  CHECK(conn.query("VALUES 1").size() == 1);
+}
+
 /// Verifies: [CLIENT Running statements] A handler that throws on a query's
 /// first batch is given no more; what it threw is thrown once the rest are
 /// read, and the connection goes on.
