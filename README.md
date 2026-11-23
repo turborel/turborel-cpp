@@ -103,7 +103,7 @@ Of a table STAFF of Ada, Grace and Edsger, it prints:
 and Appendices, published at
 https://turborel.com/docs/drivers/cpp/. The SQL a
 program sends, and the server, are described in Turborel's own manual,
-[The Turborel Documentation Set](https://github.com/turborel/turborel/blob/main/doc/README.md).
+[Turborel Documentation](https://github.com/turborel/turborel/blob/main/doc/README.md).
 [VERSIONING.md](VERSIONING.md) tells how the driver's releases are
 numbered and published.
 
