@@ -212,6 +212,14 @@ public:
   ///   connection.
   void terminate();
 
+  /// This connection's ID, as INFORMATION_SCHEMA.CONNECTIONS shows it:
+  /// what a debugger attaches to its session by, with `debugger`
+  /// *(extension)* [CLIENT Debugging routines].
+  /// @return The ID.
+  /// @throws turborel::error If `debugger` was not granted (08006, sending
+  ///   nothing, the connection kept).
+  [[nodiscard]] std::uint64_t debug_id();
+
   /// What cancels this connection's statement from another thread.
   /// @return The canceller.
   /// @throws turborel::error Of a connection over the program's own stream

@@ -11,6 +11,7 @@
 #include <turborel/copy.hpp>
 #include <turborel/cursor.hpp>
 #include <turborel/datetime.hpp>
+#include <turborel/debugger.hpp>
 #include <turborel/decimal.hpp>
 #include <turborel/error.hpp>
 #include <turborel/import.hpp>

@@ -41,6 +41,7 @@ target_sources(
           src/cursor.cpp
           src/data_error.cpp
           src/datetime.cpp
+          src/debugger.cpp
           src/decimal.cpp
           src/error.cpp
           src/import.cpp

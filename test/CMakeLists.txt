@@ -23,6 +23,7 @@ add_executable(
   pipeline.cpp
   pool.cpp
   agent.cpp
+  debugger.cpp
   faults.cpp
   standard.cpp
   datetime.cpp

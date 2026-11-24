@@ -30,6 +30,7 @@ interface is built.
 #include <turborel/pipeline.hpp>      // pipelines
 #include <turborel/pool.hpp>          // pools
 #include <turborel/agent.hpp>         // the SQL-agent
+#include <turborel/debugger.hpp>      // the routine debugger
 #include <turborel/error.hpp>         // errors and failures
 ```
 

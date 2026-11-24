@@ -53,6 +53,7 @@ wraps, raises it:
 | 01T01 | 0 | a notice: Reset or ChangeUser rolled back the transaction that was active |
 | 02000 | 100 | a query that returned no row |
 | 08001 | -919 | the SQL-agent's CONNECT of a server not reached |
+| 08003 | -919 | the debugger's attach to an ID of no connection the user may see |
 | 08004 | -919 | a server that refused the connection, as of another protocol version; the SQL-agent's CONNECT a connector failed |
 | 08006 | -919 | the server ending the connection |
 | 0F001 | -301 | a locator no longer valid, freed or past its transaction |
@@ -62,7 +63,9 @@ wraps, raises it:
 | 26000 | -921 | a statement executed or deallocated that is deallocated, or unknown to the session, as after a reset |
 | 28000 | -919 | a login or a ChangeUser refused, which ends the connection |
 | 40002 | -913 | a commit that failed a deferred constraint, the transaction rolled back |
+| 42000 | -104 | a breakpoint in a routine the user neither owns nor holds DEBUG on |
 | TB920 | -920 | a statement cancelled |
+| TBD01 | -910 | a debugger's action the target's state does not allow, as a resume of a target not paused, or a second attach |
 | TBR01 | -920 | a replica that had not applied the log position REPLICATION.READ_AFTER names in time |
 
 ## The classes the server sends

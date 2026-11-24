@@ -51,8 +51,9 @@ whose transaction is active, 25000. A connector's failure refuses
 CONNECT, as turborel-c refuses it of a connection's failure, SQLCODE
 -919: 08001 of a server not reached, lost or never found, else 08004,
 the `turborel::error`'s message kept; what it throws that is no
-`turborel::error`, or one of an SQLCODE not below 0, is thrown as it was, and a connection it made over the program's own stream fails
-with -910, TB910.
+`turborel::error`, or one of an SQLCODE not below 0, is thrown as it
+was, and a connection it made over the program's own stream fails with
+-910, TB910.
 
 ## EXAMPLES
 
