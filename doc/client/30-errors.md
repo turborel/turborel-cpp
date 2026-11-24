@@ -61,7 +61,7 @@ shows a failure, the rule in brackets and the position after it where
 the failure has them:
 
 ```text
-SQLCODE -103 (SQLSTATE 2A000): table ANN.NOPE is not defined [X3.135-1986 §5.4 SR5] (at character 15)
+SQLCODE -103 (SQLSTATE 42000): table ANN.NOPE is not defined [X3.135-1986 §5.4 SR5] (at character 15)
 ```
 
 Copying an `error` never throws: its copies share one failure.

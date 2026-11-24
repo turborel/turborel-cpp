@@ -73,7 +73,7 @@ struct failure {
 ///
 /// It is a `std::runtime_error`, so code that catches those catches it, and
 /// its `what()` reads as turborel-client shows a failure:
-/// `SQLCODE -103 (SQLSTATE 2A000): message [rule] (at character 15)`.
+/// `SQLCODE -103 (SQLSTATE 42000): message [rule] (at character 15)`.
 /// Copying it never throws: the failure is shared by its copies.
 class TURBOREL_CPP_EXPORT error : public std::runtime_error {
 public:

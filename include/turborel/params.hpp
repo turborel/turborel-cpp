@@ -148,7 +148,9 @@ public:
   /// Adds a JSON value of its JSON text.
   /// @param json The text.
   /// @return The list.
-  /// @throws turborel::error Of text no JSON value is (22018).
+  /// @throws turborel::error Of text no JSON value is (22032), of a number
+  ///   no type holds (22003), or past 128 nested arrays and objects
+  ///   (SQLCODE -900, SQLSTATE 0A000), as turborel-c refuses it.
   params& add(const json_text& json);
   /// Adds an XML value of its serialization.
   /// @param xml The serialization.

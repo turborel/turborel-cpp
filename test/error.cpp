@@ -17,7 +17,7 @@ namespace {
 turborel::failure undefined_table() {
   return turborel::failure{
       .sqlcode = -103,
-      .sqlstate = "2A000",
+      .sqlstate = "42000",
       .message = "table ANN.NOPE is not defined",
       .rule = "X3.135-1986 §5.4 SR5",
       .position = 15,
@@ -47,7 +47,7 @@ TEST_CASE("an error keeps every field of its failure") {
 
   CHECK(e.details() == undefined_table());
   CHECK(e.sqlcode() == -103);
-  CHECK(e.sqlstate() == "2A000");
+  CHECK(e.sqlstate() == "42000");
   CHECK(e.message() == "table ANN.NOPE is not defined");
   CHECK(e.details().diagnostics.value_or(turborel::diagnostics{}).constraint == "NOPE_PK");
 }
@@ -60,7 +60,7 @@ TEST_CASE("an error is a runtime_error that reads as turborel-client's failure")
   STATIC_REQUIRE(std::is_nothrow_copy_constructible_v<turborel::error>);
 
   const turborel::error cited{undefined_table()};
-  CHECK(std::string{cited.what()} == "SQLCODE -103 (SQLSTATE 2A000): table ANN.NOPE is not defined "
+  CHECK(std::string{cited.what()} == "SQLCODE -103 (SQLSTATE 42000): table ANN.NOPE is not defined "
                                      "[X3.135-1986 §5.4 SR5] (at character 15)");
 
   const turborel::error plain{turborel::failure{.sqlcode = -919, .sqlstate = "08006", .message = "lost"}};

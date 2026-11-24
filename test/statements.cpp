@@ -59,7 +59,9 @@ void table(turborel::connection& conn, const std::string& name, const std::strin
 /// columns and rows, or another's completion, its SQLCODE and SQLSTATE; a query
 /// of no rows completes with 100, 02000 [PROTOCOL Query 'Q']; a failure gives
 /// its SQLCODE, SQLSTATE, message, rule and position [PROTOCOL Description 'D']
-/// [PROTOCOL Complete 'K'].
+/// [PROTOCOL Complete 'K']; a name not defined is a syntax error or access
+/// rule violation, SQLCODE -103, SQLSTATE 42000, run directly or prepared
+/// alike, as is an exact literal past 38 digits.
 TEST_CASE("a statement gives its rows or its completion") {
   LIVE_OR_SKIP();
   turborel::connection conn = test::live::trusted();
@@ -81,12 +83,14 @@ TEST_CASE("a statement gives its rows or its completion") {
     static_cast<void>(conn.query("SELECT * FROM NOPE"));
     FAIL("the query did not fail");
   } catch (const turborel::error& e) {
-    CHECK(e.sqlcode() < 0);
-    CHECK(e.sqlstate().size() == 5);
+    CHECK(e.sqlcode() == -103);
+    CHECK(e.sqlstate() == "42000");
     CHECK(e.details().rule.has_value());
     CHECK(e.details().position.has_value());
     CHECK(e.message().find("NOPE") != std::string_view::npos);
   }
+  CHECK(sqlstate_of([&conn] { static_cast<void>(conn.prepare("SELECT * FROM NOPE")); }) == "42000");
+  CHECK(sqlstate_of([&conn] { static_cast<void>(conn.query("VALUES 1" + std::string(38, '0'))); }) == "42000");
 }
 
 /// Verifies: [CLIENT Running statements] A query's rows come to a handler a

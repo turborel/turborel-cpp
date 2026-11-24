@@ -53,8 +53,8 @@ int main() {
 ```
 
 ```
-SQLCODE -103 (SQLSTATE 2A000): table ANN.STAF is not defined [X3.135-1986 §5.4 SR5] (at character 17)
--103 2A000, rule X3.135-1986 §5.4 SR5, at 17
+SQLCODE -103 (SQLSTATE 42000): table ANN.STAF is not defined [X3.135-1986 §5.4 SR5] (at character 17)
+-103 42000, rule X3.135-1986 §5.4 SR5, at 17
 23000 ERROR, table STAFF, constraint STAFF_KEY, active true
 ```
 

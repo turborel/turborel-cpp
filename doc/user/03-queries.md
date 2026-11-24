@@ -176,7 +176,7 @@ int main() {
 2 ran
 0: 00000
 1: 00000
-stopped by 2A000: no table in the FROM clause has a column NOPE
+stopped by 42000: no table in the FROM clause has a column NOPE
 ```
 
 ## Cancelling

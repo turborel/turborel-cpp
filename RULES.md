@@ -550,7 +550,7 @@ it, and carries the whole failure as the protocol writes it, a
 `turborel::failure`: SQLCODE, SQLSTATE, message, the rule it cites, its
 position, whether the transaction is still active, and the diagnostics of
 tags 7 to 15. Its `what()` reads as turborel-client's display of a failure,
-`SQLCODE -103 (SQLSTATE 2A000): table ANN.NOPE is not defined [X3.135-1986
+`SQLCODE -103 (SQLSTATE 42000): table ANN.NOPE is not defined [X3.135-1986
 §5.4 SR5]`, so a message looks the same from every client.
 
 Copying it never throws, as the standard asks of exceptions: the failure

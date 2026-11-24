@@ -86,10 +86,10 @@ wraps, raises it:
 | 26 | invalid SQL statement name | |
 | 27 | triggered data change violation | |
 | 28 | invalid authorization specification | as a connection is made |
-| 2A | syntax error or access rule violation | |
 | 2B, 2E, 2F, 2H | dependent privilege descriptors still exist; invalid connection name; SQL routine exception, and 2FF of SQL/MM's parts; invalid collation name | |
-| 33 to 3F | invalid descriptor, cursor or condition names; cursor sensitivity, dynamic SQL syntax, external routine and savepoint exceptions; ambiguous cursor name; invalid catalog or schema name | |
+| 33 to 3F | invalid descriptor, cursor or condition names; cursor sensitivity, external routine and savepoint exceptions; ambiguous cursor name; invalid catalog or schema name | |
 | 40 | transaction rollback | |
+| 42 | syntax error or access rule violation, of a statement run directly or prepared alike | |
 | 44 | WITH CHECK OPTION violation | |
 | 54 | program limit exceeded | |
 | TB | Turborel's own | |
