@@ -151,6 +151,49 @@ int main() {
 42
 ```
 
+Granted `parameter-modes`, which a connection asks for, `markers` gives
+every `?` of a CALL, its OUT ones too, each with its parameter's mode
+and ordinal position; an IN or INOUT one has its place among the values
+`execute` takes, an OUT or INOUT one the column of the row that gives
+its value back:
+
+Made beforehand, as the owner:
+
+```sql
+CREATE PROCEDURE MIXED (OUT TOTAL INTEGER, IN TIMES INTEGER, INOUT TAG VARCHAR(10)) CONTAINS SQL BEGIN SET TOTAL = TIMES * 2; SET TAG = TAG || 'B'; END;
+```
+
+```cpp
+#include <turborel/turborel.hpp>
+
+#include <iostream>
+
+int main() {
+  turborel::mechanism trust = turborel::mechanism::trust();
+  turborel::connection conn = turborel::connection::connect(turborel::target::tcp("127.0.0.1", 17439), "ann", trust);
+  const turborel::statement mixed = conn.prepare("CALL MIXED(?, ?, ?)");
+  for (const turborel::marker& marker : mixed.markers()) {
+    const bool out = marker.mode == turborel::parameter_mode::out;
+    const bool inout = marker.mode == turborel::parameter_mode::inout;
+    std::cout << (out ? "OUT" : inout ? "INOUT" : "IN") << " of parameter " << marker.position.value_or(0) << '\n';
+  }
+  const turborel::result back = conn.execute(mixed, turborel::params::of(2, "A"));
+  for (const turborel::marker& marker : mixed.markers()) {
+    if (marker.column) {
+      std::cout << back.at(0).at(*marker.column).to_string() << '\n';
+    }
+  }
+}
+```
+
+```
+OUT of parameter 1
+IN of parameter 2
+INOUT of parameter 3
+4
+AB
+```
+
 ## Declared types
 
 A column's type, as its values' tag says, writes an INTEGER as

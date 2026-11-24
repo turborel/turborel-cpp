@@ -13,6 +13,7 @@
 #include <turborel/params.hpp>
 #include <turborel/result.hpp>
 #include <turborel/statement.hpp>
+#include <turborel/value.hpp>
 
 #include <catch2/catch_message.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -407,4 +408,83 @@ TEST_CASE("a numbered cursor needs cursors granted") {
         "-919 08006");
   CHECK(stream->written().size() == before);
   CHECK_FALSE(conn.lost());
+}
+
+namespace {
+
+/// A `?`'s mode and ordinal position, as tail 20 writes them.
+struct coded {
+  /// Its mode's code.
+  std::uint8_t mode;
+  /// Its ordinal position.
+  std::uint32_t position;
+};
+
+/// The sample prepared-called with its first `?`'s mode and ordinal
+/// position written as `first` says.
+test::bytes called_with(coded first) {
+  test::bytes frame = test::frame("prepared-called");
+  // The procedure's name, P, then the count of 2 `?`s: the first's mode
+  // and position follow.
+  const std::array<std::byte, 5> named{std::byte{0x50}, std::byte{2}, std::byte{0}, std::byte{0}, std::byte{0}};
+  const auto at = std::ranges::search(frame, named).begin() + named.size();
+  *at = std::byte{first.mode};
+  for (std::size_t i = 0; i < 4; ++i) {
+    *(at + 1 + static_cast<std::ptrdiff_t>(i)) = std::byte{static_cast<std::uint8_t>(first.position >> (8U * i))};
+  }
+  return frame;
+}
+
+} // namespace
+
+/// Verifies: [PROTOCOL Parameter modes] Granted `parameter-modes`, a
+/// Prepared of a CALL ends with tail 20, the procedure's specific schema
+/// and name, then every `?` in written order, OUT ones too, each with its
+/// mode, its ordinal position and its type: the sample's IN of parameter
+/// 1, an input, and OUT of parameter 2, the CALL's column; a mode of
+/// another code, or a position of 0, fails the connection (SQLCODE -919,
+/// SQLSTATE 08006) [PROTOCOL Capabilities] [PROTOCOL Sample frames].
+TEST_CASE("a CALL's Prepared tells each marker's mode and position") {
+  auto [conn, stream] = test::open_scripted(
+      test::joined({test::ready({"parameter-modes"}), test::frame("prepared-called")}), asking({"parameter-modes"}));
+  CHECK(conn.granted(turborel::capability::parameter_modes));
+  const turborel::statement call = conn.prepare("CALL S.P(?, ?)");
+  CHECK(call.procedure_schema() == "S");
+  CHECK(call.procedure_name() == "P");
+  const std::vector<turborel::marker> markers = call.markers();
+  REQUIRE(markers.size() == 2);
+  CHECK(markers.at(0).mode == turborel::parameter_mode::in);
+  CHECK(markers.at(0).position == 1U);
+  CHECK(markers.at(0).parameter == 0U);
+  CHECK_FALSE(markers.at(0).column.has_value());
+  CHECK(markers.at(0).type.kind() == turborel::kind::exact);
+  CHECK(markers.at(1).mode == turborel::parameter_mode::out);
+  CHECK(markers.at(1).position == 2U);
+  CHECK_FALSE(markers.at(1).parameter.has_value());
+  CHECK(markers.at(1).column == 0U);
+  CHECK(call.parameter_count() == 1);
+  for (const test::bytes& wrong : {called_with({.mode = 3, .position = 1}), called_with({.mode = 1, .position = 0})}) {
+    auto [broken, written] =
+        test::open_scripted(test::joined({test::ready({"parameter-modes"}), wrong}), asking({"parameter-modes"}));
+    CHECK(failure_of([&broken] { static_cast<void>(broken.prepare("CALL S.P(?, ?)")); }) == "-919 08006");
+    CHECK(broken.lost());
+  }
+}
+
+/// Verifies: [PROTOCOL Parameter modes] A Prepared with no tail 20, of
+/// another statement or where `parameter-modes` was not granted, tells no
+/// procedure, and each of its markers is an input, IN, of no position.
+TEST_CASE("a Prepared without tail 20 has its inputs alone, each IN") {
+  auto [conn, stream] = test::open_scripted(test::joined({test::ready({}), test::frame("prepared")}), asking({}));
+  const turborel::statement prepared = conn.prepare("SELECT K FROM T WHERE K > ?");
+  CHECK_FALSE(prepared.procedure_name().has_value());
+  CHECK_FALSE(prepared.procedure_schema().has_value());
+  const std::vector<turborel::marker> markers = prepared.markers();
+  REQUIRE(markers.size() == prepared.parameter_count());
+  for (std::size_t i = 0; i < markers.size(); ++i) {
+    CHECK(markers.at(i).mode == turborel::parameter_mode::in);
+    CHECK_FALSE(markers.at(i).position.has_value());
+    CHECK(markers.at(i).parameter == i);
+    CHECK_FALSE(markers.at(i).column.has_value());
+  }
 }

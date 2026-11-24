@@ -5,6 +5,7 @@
 
 #include "support/server.hpp"
 
+#include <turborel/connect.hpp>
 #include <turborel/connection.hpp>
 #include <turborel/cursor.hpp>
 #include <turborel/datetime.hpp>
@@ -305,6 +306,53 @@ TEST_CASE("a CALL gives its output parameters as one row") {
   const turborel::result out = conn.execute(call, turborel::params::of(21));
   CHECK(out.size() == 1);
   CHECK(out.at(0).get<std::int64_t>(0) == 42);
+}
+
+/// Verifies: [CLIENT Prepared statements] A prepared CALL's markers each
+/// have its parameter's mode, IN, INOUT or OUT, and ordinal position,
+/// granted `parameter-modes`, which connecting asks for, and the
+/// procedure's specific name: an OUT parameter is described, given no
+/// value, and read back from the CALL's row, as an INOUT one is; another
+/// statement's markers are its inputs, each IN, of no position
+/// [PROTOCOL Parameter modes].
+TEST_CASE("a CALL's parameters have their modes, OUT values read back") {
+  LIVE_OR_SKIP();
+  turborel::connection conn = test::live::trusted();
+  CHECK(conn.granted(turborel::capability::parameter_modes));
+  static_cast<void>(conn.query("CREATE PROCEDURE MIXED (OUT TOTAL INTEGER, IN TIMES INTEGER, INOUT TAG VARCHAR(10)) "
+                               "CONTAINS SQL BEGIN SET TOTAL = TIMES * 2; SET TAG = TAG || 'B'; END"));
+  static_cast<void>(conn.query("COMMIT"));
+  const turborel::statement mixed = conn.prepare("CALL MIXED(?, ?, ?)");
+  CHECK(mixed.procedure_schema() == "ANN");
+  CHECK(mixed.procedure_name().has_value());
+  const std::vector<turborel::marker> markers = mixed.markers();
+  REQUIRE(markers.size() == 3);
+  CHECK(markers.at(0).mode == turborel::parameter_mode::out);
+  CHECK(markers.at(1).mode == turborel::parameter_mode::in);
+  CHECK(markers.at(2).mode == turborel::parameter_mode::inout);
+  CHECK(markers.at(0).position == 1U);
+  CHECK(markers.at(2).position == 3U);
+  CHECK(markers.at(0).type.kind() == turborel::kind::exact);
+  CHECK(mixed.parameter_count() == 2);
+  CHECK(markers.at(1).parameter == 0U);
+  CHECK(markers.at(2).parameter == 1U);
+  REQUIRE(markers.at(0).column.has_value());
+  REQUIRE(markers.at(2).column.has_value());
+  const turborel::result back = conn.execute(mixed, turborel::params::of(2, "A"));
+  REQUIRE(back.size() == 1);
+  CHECK(back.at(0).get<std::int64_t>(*markers.at(0).column) == 4);
+  CHECK(back.at(0).get<std::string>(*markers.at(2).column) == "AB");
+  const std::vector<turborel::marker> plain = conn.prepare("VALUES CAST(? AS INTEGER)").markers();
+  REQUIRE(plain.size() == 1);
+  CHECK(plain.at(0).mode == turborel::parameter_mode::in);
+  CHECK_FALSE(plain.at(0).position.has_value());
+  turborel::connect_options none;
+  none.ask_none();
+  turborel::connection without = test::live::trusted(none);
+  const std::vector<turborel::marker> inputs = without.prepare("CALL MIXED(?, ?, ?)").markers();
+  REQUIRE(inputs.size() == 2);
+  CHECK(inputs.at(0).mode == turborel::parameter_mode::in);
+  CHECK_FALSE(inputs.at(0).position.has_value());
 }
 
 /// Verifies: [CLIENT Prepared statements] A column's declared type, its

@@ -194,11 +194,24 @@ public:
   void deallocate(const statement& prepared);
 };
 
+enum class parameter_mode : std::uint8_t { in = 1, inout = 2, out = 4 };
+
+struct marker {
+  parameter_mode mode;
+  std::optional<std::uint32_t> position;
+  data_type type;
+  std::optional<std::size_t> parameter;
+  std::optional<std::size_t> column;
+};
+
 class statement {
 public:
   std::size_t parameter_count() const noexcept;
   data_type parameter_type(std::size_t index) const;
   std::vector<column> columns() const;
+  std::vector<marker> markers() const;
+  std::optional<std::string_view> procedure_schema() const noexcept;
+  std::optional<std::string_view> procedure_name() const noexcept;
 };
 }
 ```
@@ -215,6 +228,18 @@ values: a query's rows, a CALL's output parameters as one row, another
 statement's completion. A statement is valid across transactions, until
 it is deallocated; `describe` describes it again, with `describe`;
 `deallocate` destroys it in the session.
+
+`markers` gives every `?` in the order written. Of a CALL of an
+SQL-invoked procedure, granted `parameter-modes`, which a connection
+asks for, it gives each `?`, its OUT ones too, with the `mode` of the
+procedure parameter whose argument holds it, IN, INOUT or OUT, that
+parameter's ordinal `position` from 1, and its `type`;
+`procedure_schema` and `procedure_name` give the procedure's specific
+name. A `marker` of IN or INOUT has its `parameter`, its value's place
+among those `execute` takes; one of OUT or INOUT its `column`, the
+column of the CALL's row that gives its value back. Of any other
+statement, or without `parameter-modes`, the markers are its inputs,
+each IN, of no position, and the procedure is none.
 
 ### ERRORS
 

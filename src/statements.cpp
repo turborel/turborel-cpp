@@ -17,10 +17,12 @@
 #include <turborel/value.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <exception>
 #include <functional>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace turborel {
@@ -64,6 +66,34 @@ std::vector<column> statement::columns() const {
     });
   }
   return columns;
+}
+
+std::vector<marker> statement::markers() const {
+  std::vector<marker> markers;
+  markers.reserve(trl_statement_marker_count(get()));
+  for (std::size_t i = 0; i < trl_statement_marker_count(get()); ++i) {
+    const std::uint32_t position = trl_statement_marker_position(get(), i);
+    std::size_t parameter = 0;
+    std::size_t column = 0;
+    const bool input = trl_statement_marker_parameter(get(), i, &parameter);
+    const bool output = trl_statement_marker_column(get(), i, &column);
+    markers.push_back(marker{
+        .mode = static_cast<parameter_mode>(trl_statement_marker_mode(get(), i)),
+        .position = position == 0 ? std::nullopt : std::optional<std::uint32_t>{position},
+        .type = data_type{trl_statement_marker_type(get(), i)},
+        .parameter = input ? std::optional<std::size_t>{parameter} : std::nullopt,
+        .column = output ? std::optional<std::size_t>{column} : std::nullopt,
+    });
+  }
+  return markers;
+}
+
+std::optional<std::string_view> statement::procedure_schema() const noexcept {
+  return detail::maybe(trl_statement_procedure_schema(get()));
+}
+
+std::optional<std::string_view> statement::procedure_name() const noexcept {
+  return detail::maybe(trl_statement_procedure_name(get()));
 }
 
 void ran::freer::operator()(trl_ran* made) const noexcept { trl_ran_free(made); }
