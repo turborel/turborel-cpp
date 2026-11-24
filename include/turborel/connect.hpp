@@ -84,6 +84,8 @@ inline constexpr std::string_view conditions = "conditions";
 inline constexpr std::string_view declared_types = "declared-types";
 /// A CALL's procedure, and each `?`'s mode and position.
 inline constexpr std::string_view parameter_modes = "parameter-modes";
+/// The routine debugger *(extension)*: Debug, Debugged and Event.
+inline constexpr std::string_view debugger = "debugger";
 } // namespace capability
 
 /// TLS settings: the certificate authorities trusted, and the certificate
