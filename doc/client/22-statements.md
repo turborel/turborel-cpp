@@ -197,9 +197,9 @@ public:
 enum class parameter_mode : std::uint8_t { in = 1, inout = 2, out = 4 };
 
 struct marker {
-  parameter_mode mode;
+  parameter_mode mode{parameter_mode::in};
   std::optional<std::uint32_t> position;
-  data_type type;
+  data_type type{nullptr};
   std::optional<std::size_t> parameter;
   std::optional<std::size_t> column;
 };

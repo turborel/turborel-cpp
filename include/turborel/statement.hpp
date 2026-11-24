@@ -39,12 +39,12 @@ enum class parameter_mode : std::uint8_t {
 struct marker {
   /// Its parameter's mode: of a CALL of an SQL-invoked procedure, granted
   /// `parameter-modes`, the procedure's; else IN.
-  parameter_mode mode;
+  parameter_mode mode{parameter_mode::in};
   /// The ordinal position, from 1, of the procedure parameter it is the
   /// argument of; none of a statement whose Prepared told no procedure.
   std::optional<std::uint32_t> position;
   /// Its type, a view valid while the statement is.
-  data_type type;
+  data_type type{nullptr};
   /// Its value's place among the values execute() takes, of IN and INOUT;
   /// none of OUT.
   std::optional<std::size_t> parameter;
