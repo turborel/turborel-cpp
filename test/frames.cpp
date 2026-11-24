@@ -312,7 +312,7 @@ bool wrote(const test::bytes& written, std::size_t at, const std::string& name) 
 } // namespace
 
 /// Verifies: [PROTOCOL Sample frames] Every line of the sample frames' file,
-/// copied at 1afa44c2, is read as the page lays it out; each server
+/// copied at 5863fe65, is read as the page lays it out; each server
 /// sample of a data type or a value is read through the driver by
 /// turborel-c's codec, which turborel-c's own tests check frame by frame;
 /// the client frames of Ping, a Query under autocommit and Terminate are
@@ -320,7 +320,7 @@ bool wrote(const test::bytes& written, std::size_t at, const std::string& name) 
 /// inflated to its 64 rows (the compressed frames' test).
 TEST_CASE("the sample frames read and written through the driver") {
   const std::map<std::string, test::sample>& all = test::samples();
-  CHECK(all.size() == 148);
+  CHECK(all.size() == 166);
   const std::map<std::string, std::size_t, std::less<>> columns_of{
       {"description-empty", 0},
       {"description-declared", 7},
