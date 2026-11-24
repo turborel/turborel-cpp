@@ -11,7 +11,7 @@ protocol, `doc/client/05-protocol.md`; the client library,
 `doc/client/02-library.md`; and its settings, pipelines and pools,
 `doc/client/02-library-connections.md`. Each section here is one of
 theirs, and each row cites its heading as the tests cite it (RULES.md
-D6). The headings are those of Turborel's main at 045e42a9, and the
+D6). The headings are those of Turborel's main at 1afa44c2, and the
 sample frames the tests read, `test/fixtures/05-protocol-frames.tsv`, are
 its `doc/client/05-protocol-frames.tsv` there (RULES.md D18). Last come
 the rows of this driver's standard API (RULES.md D2).
