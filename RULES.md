@@ -596,7 +596,7 @@ checkout with nothing installed, as CI does. A commit, not a tag, because
 turborel-c has no tags during the alpha and a tag can be moved; it is no
 cache variable, so a build made before it moved takes the new one, and
 CMake's `FETCHCONTENT_SOURCE_DIR_TURBOREL` builds a checkout of one's own
-instead. The commit is 76e47dff, turborel-c's main with its milestones
+instead. The commit is d4d99046, turborel-c's main with its milestones
 M1 to M8 done and the gaps this driver found closed. The installed
 package of the driver finds turborel-c the same way
 (`find_dependency(turborel <version> EXACT CONFIG)`).
