@@ -86,6 +86,8 @@ inline constexpr std::string_view declared_types = "declared-types";
 inline constexpr std::string_view parameter_modes = "parameter-modes";
 /// The routine debugger *(extension)*: Debug, Debugged and Event.
 inline constexpr std::string_view debugger = "debugger";
+/// A copy's rows by column, CopyColumns, with `copy` *(extension)*.
+inline constexpr std::string_view columns = "columns";
 } // namespace capability
 
 /// TLS settings: the certificate authorities trusted, and the certificate

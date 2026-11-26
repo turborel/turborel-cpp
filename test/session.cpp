@@ -78,8 +78,9 @@ TEST_CASE("a connection asks for every capability but compression") {
   CHECK(every.granted(turborel::capability::declared_types));
   CHECK(every.granted(turborel::capability::parameter_modes));
   CHECK(every.granted(turborel::capability::debugger));
+  CHECK(every.granted(turborel::capability::columns));
   CHECK_FALSE(every.granted(turborel::capability::compression));
-  CHECK(granted.size() == 20);
+  CHECK(granted.size() == 21);
   turborel::connection none = test::live::trusted(asking({}));
   CHECK(none.granted().empty());
   CHECK(none.query("VALUES 1").at(0).get<std::int64_t>(0) == 1);

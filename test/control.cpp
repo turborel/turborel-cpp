@@ -65,6 +65,7 @@ turborel::connect_options all_but(std::string_view left_out) {
            turborel::capability::declared_types,
            turborel::capability::parameter_modes,
            turborel::capability::debugger,
+           turborel::capability::columns,
        }) {
     if (name != left_out) {
       options.ask(name);

@@ -8,6 +8,7 @@
 
 #include <turborel/connect.hpp>
 #include <turborel/connection.hpp>
+#include <turborel/copy.hpp>
 #include <turborel/cursor.hpp>
 #include <turborel/error.hpp>
 #include <turborel/params.hpp>
@@ -487,4 +488,26 @@ TEST_CASE("a Prepared without tail 20 has its inputs alone, each IN") {
     CHECK(markers.at(i).parameter == i);
     CHECK_FALSE(markers.at(i).column.has_value());
   }
+}
+
+/// Verifies: [PROTOCOL CopyColumns 'O'] Granted `columns`, rows whose
+/// values are character strings or null go by column: the sample's two
+/// rows, 1 and null, b and the empty string, written byte for byte as the
+/// file holds them, between the copy's CopyIn and its CopyEnd
+/// [PROTOCOL Capabilities] [PROTOCOL Sample frames].
+TEST_CASE("CopyColumns is written as its sample") {
+  auto [conn, stream] = test::open_scripted(test::joined({test::ready({"copy", "columns"}), test::complete()}),
+                                            asking({"copy", "columns"}));
+  CHECK(conn.granted(turborel::capability::columns));
+  turborel::copy into = turborel::copy::into(conn, "S.T", {"ID", "NAME"});
+  into.send(turborel::params::of(std::string{"1"}, std::string{"b"}));
+  turborel::params second;
+  second.add(std::nullopt).add(std::string{});
+  into.send(second);
+  static_cast<void>(into.finish());
+  const test::bytes& written = stream->written();
+  const test::bytes& sample = test::frame("copy-columns");
+  CHECK(std::ranges::search(written, sample).begin() != written.end());
+  const test::bytes& by_row = test::frame("copy-data");
+  CHECK(std::ranges::search(written, by_row).begin() == written.end());
 }

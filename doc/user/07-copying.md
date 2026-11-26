@@ -15,7 +15,9 @@ query's rows as they come, as CSV or as the protocol's own frames.
 columns named, or of every column; `send` sends a row, a `params` of its
 values, with no reply; `finish` ends it, giving the rows inserted. A row
 refused undoes every row, its failure's detail naming the row; a copy
-abandoned, or destroyed before it finishes, inserts none.
+abandoned, or destroyed before it finishes, inserts none. Rows of
+strings and nulls, as an import's, go by column where the server grants
+`columns`, inserting the same rows.
 `copy_rows(conn, table, columns, next)` copies every row a function
 gives, until it gives none:
 

@@ -4,6 +4,7 @@
 
 #include "support/server.hpp"
 
+#include <turborel/connect.hpp>
 #include <turborel/connection.hpp>
 #include <turborel/copy.hpp>
 #include <turborel/error.hpp>
@@ -21,6 +22,7 @@
 #include <stdexcept>
 #include <streambuf>
 #include <string>
+#include <string_view>
 
 namespace {
 
@@ -85,6 +87,53 @@ TEST_CASE("a copy is all or nothing") {
   }
   static_cast<void>(conn.query("COMMIT"));
   CHECK(conn.query("SELECT COUNT(*) FROM CN").at(0).get<std::int64_t>(0) == 0);
+}
+
+/// Verifies: [CLIENT Copying and exporting] Granted `columns`, which
+/// connecting asks for, rows of character strings and nulls are copied by
+/// column, each cell taken as its text would be by row: a null and the
+/// empty string kept apart, rows by column and by row mixed in one copy in
+/// their order; a cell too long for its column fails the copy at its end,
+/// its detail naming the row, every row undone; one abandoned inserts none
+/// [PROTOCOL CopyColumns 'O'] [PROTOCOL CopyEnd 'N'].
+TEST_CASE("rows of strings are copied by column") {
+  LIVE_OR_SKIP();
+  turborel::connection conn = test::live::trusted();
+  CHECK(conn.granted(turborel::capability::columns));
+  static_cast<void>(conn.query("CREATE TABLE CC (ID INTEGER, NAME VARCHAR(5))"));
+  static_cast<void>(conn.query("COMMIT"));
+  turborel::copy into = turborel::copy::into(conn, "CC", {"ID", "NAME"});
+  into.send(turborel::params::of(std::string{"1"}, std::string{"a"}));
+  turborel::params empty;
+  empty.add(std::nullopt).add(std::string{});
+  into.send(empty);
+  into.send(turborel::params::of(3, std::string{"c"}));
+  turborel::params nameless;
+  nameless.add(std::string_view{"4"}).add(std::nullopt);
+  into.send(nameless);
+  CHECK(into.finish() == 4);
+  static_cast<void>(conn.query("COMMIT"));
+  const turborel::result read = conn.query("SELECT ID, NAME FROM CC ORDER BY ID NULLS FIRST");
+  REQUIRE(read.size() == 4);
+  CHECK(read.at(0).at(0).is_null());
+  CHECK(read.at(0).get<std::string>(1).empty());
+  CHECK(read.at(1).get<std::int64_t>(0) == 1);
+  CHECK(read.at(1).get<std::string>(1) == "a");
+  CHECK(read.at(2).get<std::int64_t>(0) == 3);
+  CHECK(read.at(3).at(1).is_null());
+  turborel::copy too_long = turborel::copy::into(conn, "CC", {"ID", "NAME"});
+  too_long.send(turborel::params::of(std::string{"5"}, std::string{"e"}));
+  too_long.send(turborel::params::of(std::string{"6"}, std::string{"f"}));
+  too_long.send(turborel::params::of(std::string{"7"}, std::string{"seventh"}));
+  const std::optional<turborel::failure> refused = failure_of([&too_long] { static_cast<void>(too_long.finish()); });
+  REQUIRE(refused.has_value());
+  CHECK(refused->sqlstate == "22001");
+  CHECK(refused->diagnostics.value_or(turborel::diagnostics{}).detail == "row 3 of the copy");
+  turborel::copy abandoned = turborel::copy::into(conn, "CC", {"ID", "NAME"});
+  abandoned.send(turborel::params::of(std::string{"8"}, std::string{"h"}));
+  abandoned.abandon();
+  static_cast<void>(conn.query("COMMIT"));
+  CHECK(conn.query("SELECT COUNT(*) FROM CC").at(0).get<std::int64_t>(0) == 4);
 }
 
 /// Verifies: [CLIENT Copying and exporting] The rows an iterator gives are

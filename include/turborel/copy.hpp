@@ -45,7 +45,11 @@ public:
                                  const std::vector<std::string>& columns = {});
 
   /// Sends a row, sent with those before it once they are about
-  /// copy_chunk_bytes, with no reply [PROTOCOL CopyData 'J'].
+  /// copy_chunk_bytes, with no reply [PROTOCOL CopyData 'J']. Granted
+  /// `columns`, which connecting asks for, rows whose every value is null
+  /// or a character string go by column, each cell its string's text, as
+  /// the server takes it by row [PROTOCOL CopyColumns 'O']; any other row
+  /// goes by row, in its turn.
   /// @param row The row's values.
   /// @return The copy.
   /// @throws turborel::error Of a value the protocol cannot carry, or the

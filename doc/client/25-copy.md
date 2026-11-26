@@ -39,7 +39,12 @@ std::uint64_t copy_rows(connection& conn, const std::string& table, const std::v
 each row's order, or of every column in the table's order; until it
 ends, the connection sends only its rows, its end and Ping. `send` sends
 a row, with those before it, as CopyData once they are about
-`copy_chunk_bytes`, with no reply. `finish` ends it by CopyEnd, giving
+`copy_chunk_bytes`, with no reply. Granted `columns` *(extension)*,
+which a connection asks for, rows whose every value is null or a
+character string go by column, as CopyColumns, each cell its string's
+text, which the server takes as it takes the string by row, so a cell
+too long for its column fails rather than being cut; any other row goes
+by CopyData, in its turn, and the two mix in one copy. `finish` ends it by CopyEnd, giving
 the rows inserted, all or none; `abandon` gives it up, every row undone,
 as the copy's destructor does of one not ended. A copy under autocommit
 is committed as it succeeds; one in a transaction runs under a savepoint
@@ -364,8 +369,8 @@ int main() {
 
 ## STANDARD
 
-The Native Protocol, version 1, its sections CopyIn 'I', CopyData 'J'
-and CopyEnd 'N'; The Client Library, its sections Copying and exporting,
+The Native Protocol, version 1, its sections CopyIn 'I', CopyData 'J',
+CopyColumns 'O' and CopyEnd 'N'; The Client Library, its sections Copying and exporting,
 and Importing; RFC 4180, *Common Format and MIME Type for
 Comma-Separated Values (CSV) Files*.
 
