@@ -724,7 +724,7 @@ Windows, turborel-c builds one in from a pinned release (its
 #### D18. The sample frames are a copy, pinned at a Turborel commit
 
 `test/fixtures/05-protocol-frames.tsv` is Turborel's
-`doc/client/05-protocol-frames.tsv` copied at 5863fe65, the commit the
+`doc/client/05-protocol-frames.tsv` copied at 45cb0d7f, the commit the
 headings (D6) are pinned at. A copy, rather than reading it from a
 checkout of Turborel, so the tests are the same on every machine and in
 CI with no checkout of Turborel at all; a new copy comes in a commit of

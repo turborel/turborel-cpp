@@ -17,7 +17,7 @@ endif()
 set(max_lines 600)
 
 # RULES.md D6: the headings a citation may name, those of Turborel's
-# documents at the commit CONFORMANCE.md names, 5863fe65, their titles
+# documents at the commit CONFORMANCE.md names, 45cb0d7f, their titles
 # among them. `[PROTOCOL <heading>]` names one of The Native Protocol,
 # doc/client/05-protocol.md, where Lob 'L' is printed twice.
 set(protocol_headings
@@ -25,7 +25,7 @@ set(protocol_headings
     "JSON values" "Composite fields" "The tail" "Opening a connection" "Mechanisms" "Capabilities"
     "Requests" "Hello 'H'" "Answer 'A'" "Query 'Q'" "Prepare 'P'" "Execute 'E'" "Fetch 'F'" "Close 'C'"
     "Deallocate 'D'" "Lob 'L'" "Cancel 'Z'" "Terminate 'X'" "Describe 'Y'" "Ping 'G'" "Reset 'W'"
-    "ChangeUser 'U'" "CopyIn 'I'" "CopyData 'J'" "CopyEnd 'N'" "Debug 'V'" "Replies" "Challenge 'C'"
+    "ChangeUser 'U'" "CopyIn 'I'" "CopyData 'J'" "CopyEnd 'N'" "CopyColumns 'O'" "Debug 'V'" "Replies" "Challenge 'C'"
     "Ready 'R'" "Prepared 'P'" "Parameter modes" "Description 'D'" "Declared types" "Rows 'B'" "Suspended 'S'"
     "Complete 'K'" "Error 'E'" "Notice 'N'" "Status 'T'" "Pong 'G'" "Debugged 'V'" "Event 'W'" "Conversations"
     "Errors and notices"
