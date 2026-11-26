@@ -506,8 +506,10 @@ TEST_CASE("CopyColumns is written as its sample") {
   into.send(second);
   static_cast<void>(into.finish());
   const test::bytes& written = stream->written();
-  const test::bytes& sample = test::frame("copy-columns");
+  const std::string by_column_name{"copy-columns"};
+  const std::string by_row_name{"copy-data"};
+  const test::bytes& sample = test::frame(by_column_name);
   CHECK(std::ranges::search(written, sample).begin() != written.end());
-  const test::bytes& by_row = test::frame("copy-data");
+  const test::bytes& by_row = test::frame(by_row_name);
   CHECK(std::ranges::search(written, by_row).begin() == written.end());
 }
